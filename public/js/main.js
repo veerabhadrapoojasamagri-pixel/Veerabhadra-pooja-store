@@ -254,30 +254,9 @@ function renderRatings() {
 
         const infoSection = card.querySelector('.product-info');
         
-        // Render rating badge
-        if (infoSection && !infoSection.querySelector('.dynamic-product-rating')) {
-          const ratingDiv = document.createElement('div');
-          ratingDiv.className = 'dynamic-product-rating';
-          ratingDiv.style.cssText = 'display:flex; align-items:center; gap:6px; font-size:0.82rem; margin: 4px 0 8px; font-family:\'Outfit\',sans-serif;';
-          
-          const reviewsCount = Math.floor(((item.id.charCodeAt(0) || 1) * 3) % 40) + 12;
-          
-          ratingDiv.innerHTML = `
-            ${getStarsHtml(item.rating || 4.8)}
-            <span style="font-weight:700; color:#1a1a2e; margin-top:2px;">${(item.rating || 4.8).toFixed(1)}</span>
-            <span style="color:#888; margin-top:2px;">(${reviewsCount} reviews)</span>
-          `;
-          
-          const nameEl = infoSection.querySelector('.product-name');
-          if (nameEl) {
-            nameEl.parentNode.insertBefore(ratingDiv, nameEl.nextSibling);
-          } else {
-            infoSection.appendChild(ratingDiv);
-          }
-        }
-
         // Render variants select dropdown if variants exist
         if (infoSection && item.variants && item.variants.length > 0 && !infoSection.querySelector('.variant-select-container')) {
+
           const selectContainer = document.createElement('div');
           selectContainer.className = 'variant-select-container';
           selectContainer.style.cssText = 'margin: 8px 0 10px; text-align: left;';
@@ -365,23 +344,10 @@ function renderRatings() {
       }
     }
 
-    // 2. Render on rental details page (rental.html)
-    if (item.id === 'vratam-peta-kit') {
-      const rentalHeader = document.querySelector('.rental-details h2');
-      if (rentalHeader && !document.getElementById('rentalDetailRating')) {
-        const ratingDiv = document.createElement('div');
-        ratingDiv.id = 'rentalDetailRating';
-        ratingDiv.style.cssText = 'display:inline-flex; align-items:center; gap:6px; font-size:0.9rem; margin: 8px 0 12px; font-family:\'Outfit\',sans-serif; background:rgba(243,112,34,0.05); padding: 4px 10px; border-radius: 6px;';
-        ratingDiv.innerHTML = `
-          ${getStarsHtml(item.rating || 4.9)}
-          <span style="font-weight:700; color:#1a1a2e;">${(item.rating || 4.9).toFixed(1)}</span>
-          <span style="color:#666;">(48 ratings)</span>
-        `;
-        rentalHeader.parentNode.insertBefore(ratingDiv, rentalHeader.nextSibling);
-      }
-    }
+    // 2. Rental details page (rental.html) - ratings removed
   });
 }
+
 
 async function checkAuthState() {
   if (typeof supabaseClient === 'undefined') return;

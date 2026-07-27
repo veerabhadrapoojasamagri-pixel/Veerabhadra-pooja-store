@@ -1083,15 +1083,34 @@ async function handleFormSubmit(e) {
   const type = document.getElementById('itemType').value;
   const description = document.getElementById('itemDescription').value.trim();
 
-  // Handle file upload from PC
-  if (fileInput && fileInput.files.length > 0) {
-    const file = fileInput.files[0];
-    const formData = new FormData();
-    formData.append('image', file);
+  // Check dropzone preview element for uploaded/selected image data
+  const previewImg = document.getElementById('previewImage');
+  if (!imageUrl && previewImg && previewImg.src && previewImg.src !== window.location.href && previewImg.src.length > 50) {
+    imageUrl = previewImg.src;
+  }
 
-    showToast('Uploading image to server...');
+  // Handle file upload from PC
+  if (fileInput && fileInput.files && fileInput.files.length > 0) {
+    const file = fileInput.files[0];
+
+    // Read file as Base64 Data URL first to guarantee image display
+    const base64Url = await new Promise((resolve) => {
+      const reader = new FileReader();
+      reader.onload = (evt) => resolve(evt.target ? evt.target.result : null);
+      reader.onerror = () => resolve(null);
+      reader.readAsDataURL(file);
+    });
+
+    if (base64Url) {
+      imageUrl = base64Url;
+    }
+
+    showToast('Processing uploaded image...');
 
     try {
+      const formData = new FormData();
+      formData.append('image', file);
+
       const response = await fetch('/api/upload', {
         method: 'POST',
         body: formData
@@ -1099,16 +1118,16 @@ async function handleFormSubmit(e) {
 
       if (response.ok) {
         const result = await response.json();
-        imageUrl = result.imageUrl; // Saved server URL (e.g. 'images/123456.png')
+        if (result && result.imageUrl) {
+          imageUrl = result.imageUrl; // Use server URL if returned
+        }
         showToast('Image uploaded successfully!');
-      } else {
-        showToast('Image upload failed. Using fallback.');
       }
     } catch (err) {
-      console.error('Upload error:', err);
-      showToast('Error uploading image file.');
+      console.warn('Server upload endpoint offline, using base64 image encoding:', err);
     }
   }
+
 
   let price, mrp, deposit, height = null, width = null;
   let variants = [];
