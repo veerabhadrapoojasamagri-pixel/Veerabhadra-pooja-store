@@ -341,7 +341,16 @@ document.addEventListener('DOMContentLoaded', () => {
   checkAuth();
   setupEventListeners();
   initUploadZone();
+
+  if (typeof supabaseClient !== 'undefined' && supabaseClient.auth) {
+    supabaseClient.auth.onAuthStateChange((event) => {
+      if (event === 'SIGNED_IN' || event === 'SIGNED_OUT') {
+        checkAuth();
+      }
+    });
+  }
 });
+
 
 // Load items from LocalStorage and orders from Supabase cloud database
 async function initData() {
@@ -415,45 +424,106 @@ async function saveOrdersToServer(order) {
   }
 }
 
-// Authentication Handlers
-function checkAuth() {
-  const isAuthenticated = sessionStorage.getItem('pooja_admin_auth') === 'true';
+// Authentication Handlers (Supabase Auth Only)
+async function checkAuth() {
   const loginSection = document.getElementById('loginSection');
   const dashboardSection = document.getElementById('dashboardLayout');
 
-  if (isAuthenticated) {
-    if (loginSection) loginSection.style.display = 'none';
-    if (dashboardSection) dashboardSection.style.display = 'flex';
-    switchTab('dashboard');
-  } else {
+  if (typeof supabaseClient === 'undefined') {
+    console.error('Supabase client unavailable.');
+    if (loginSection) loginSection.style.display = 'flex';
+    if (dashboardSection) dashboardSection.style.display = 'none';
+    return;
+  }
+
+  try {
+    const { data: { session }, error } = await supabaseClient.auth.getSession();
+
+    if (!error && session && session.user) {
+      if (loginSection) loginSection.style.display = 'none';
+      if (dashboardSection) dashboardSection.style.display = 'flex';
+      
+      const adminNameEl = document.querySelector('.user-profile span:last-child');
+      if (adminNameEl && session.user.email) {
+        adminNameEl.textContent = session.user.email;
+      }
+      switchTab('dashboard');
+    } else {
+      if (loginSection) loginSection.style.display = 'flex';
+      if (dashboardSection) dashboardSection.style.display = 'none';
+    }
+  } catch (err) {
+    console.error('Auth verification error:', err);
     if (loginSection) loginSection.style.display = 'flex';
     if (dashboardSection) dashboardSection.style.display = 'none';
   }
 }
 
-function handleLogin(e) {
+async function handleLogin(e) {
   e.preventDefault();
-  const email = document.getElementById('email').value.trim();
-  const password = document.getElementById('password').value;
+  const emailInput = document.getElementById('email');
+  const passwordInput = document.getElementById('password');
+  const email = emailInput ? emailInput.value.trim() : '';
+  const password = passwordInput ? passwordInput.value : '';
   const errorEl = document.getElementById('loginError');
+  const submitBtn = e.target.querySelector('button[type="submit"]');
 
-  // Static login credentials
-  if (email === 'admin@poojastore.com' && password === 'admin123') {
-    sessionStorage.setItem('pooja_admin_auth', 'true');
-    errorEl.style.display = 'none';
-    checkAuth();
-    showToast('Login successful!');
-  } else {
-    errorEl.textContent = 'Invalid email or password.';
-    errorEl.style.display = 'block';
+  if (!email || !password) {
+    if (errorEl) {
+      errorEl.textContent = 'Please enter both email and password.';
+      errorEl.style.display = 'block';
+    }
+    return;
+  }
+
+  if (submitBtn) {
+    submitBtn.disabled = true;
+    submitBtn.textContent = 'Signing in...';
+  }
+
+  try {
+    const { data, error } = await supabaseClient.auth.signInWithPassword({
+      email: email,
+      password: password
+    });
+
+    if (error) {
+      if (errorEl) {
+        errorEl.textContent = error.message || 'Invalid email or password.';
+        errorEl.style.display = 'block';
+      }
+      showToast('Login failed: ' + (error.message || 'Invalid credentials'));
+    } else if (data && data.session) {
+      if (errorEl) errorEl.style.display = 'none';
+      await checkAuth();
+      showToast('Welcome back, Admin!');
+    }
+  } catch (err) {
+    console.error('Supabase Admin Login Error:', err);
+    if (errorEl) {
+      errorEl.textContent = 'Failed to connect to Supabase Auth. Please check connection.';
+      errorEl.style.display = 'block';
+    }
+  } finally {
+    if (submitBtn) {
+      submitBtn.disabled = false;
+      submitBtn.textContent = 'Sign In';
+    }
   }
 }
 
-function handleLogout() {
-  sessionStorage.removeItem('pooja_admin_auth');
+async function handleLogout() {
+  try {
+    if (typeof supabaseClient !== 'undefined') {
+      await supabaseClient.auth.signOut();
+    }
+  } catch (err) {
+    console.error('Logout error:', err);
+  }
   showToast('Logged out successfully.');
-  checkAuth();
+  await checkAuth();
 }
+
 
 // Product Variants & Custom Quantities Helpers
 function toggleVariantsSection() {
