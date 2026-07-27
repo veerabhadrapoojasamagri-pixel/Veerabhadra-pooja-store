@@ -1354,6 +1354,9 @@ function hidePreview() {
    ORDER MANAGEMENT SYSTEM LOGIC
    ======================================================== */
 
+// Google Maps Review Link for Customer Reviews
+const GOOGLE_MAPS_REVIEW_URL = 'https://maps.google.com/?q=Hydershahkote+Madhavi+Nagar+Shanti+Nagar+Busstop+Ranga+Reddy';
+
 // Notification Service
 const NotificationService = {
   generateMessage(order, status) {
@@ -1376,10 +1379,11 @@ const NotificationService = {
         return `📍 *Veerabhadra Pooja Store*\n\nHello ${customerName},\n\nYour order is *ready for pickup!* 🎉\n\n*Order ID:* ${orderId}\n\n*Items:*\n${productList}\n\nPlease visit our store to collect your order.\n\n📍 Madhavi Nagar, Shanti Nagar Bus Stop, Hydershahkote, Ranga Reddy\n\nThank you! 🙏`;
         
       case 'DELIVERED':
-        return `✅ *Veerabhadra Pooja Store*\n\nHello ${customerName},\n\nYour order has been successfully *delivered!* 🎉\n\n*Order ID:* ${orderId}\n\n*Items:*\n${productList}\n\nThank you for shopping with Veerabhadra Pooja Store! 🙏\n\nWe hope to serve you again. Please share your valuable feedback.`;
+        return `✅ *Veerabhadra Pooja Store*\n\nHello ${customerName},\n\nYour order has been successfully *delivered!* 🎉\n\n*Order ID:* ${orderId}\n\n*Items:*\n${productList}\n\nThank you for shopping with Veerabhadra Pooja Store! 🙏\n\n⭐ *We value your feedback!* Please leave us a review on Google Maps:\n📍 ${GOOGLE_MAPS_REVIEW_URL}\n\nWe hope to serve you again soon! 🪔`;
         
       case 'CANCELLED':
         return `❌ *Veerabhadra Pooja Store*\n\nHello ${customerName},\n\nWe regret to inform you that your order has been *cancelled*.\n\n*Order ID:* ${orderId}\n\n*Items:*\n${productList}\n\nIf you have any questions, please contact us on WhatsApp.\n\nSorry for the inconvenience. 🙏`;
+
         
       default:
         return null;
