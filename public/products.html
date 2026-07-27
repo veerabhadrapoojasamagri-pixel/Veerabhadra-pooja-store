@@ -32,6 +32,7 @@
 
       <!-- Cart & Mobile Toggle -->
       <div class="nav-actions">
+        <button onclick="if(document.referrer&&document.referrer.includes(window.location.host)){history.back()}else{window.location.href='/'}" class="btn-back-nav" title="Go back to previous page">← Back</button>
         <a href="login.html" class="btn btn-secondary btn-sm" id="navAuthBtn" style="border-radius: var(--radius-full); padding: 0.4rem 1rem;">Sign In</a>
         <button class="cart-trigger" aria-label="Open Cart" style="display: none;">
           <svg class="cart-icon-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
@@ -96,7 +97,11 @@
   <!-- Products Main Content -->
   <div class="products-section">
     <div class="products-wrapper">
+      <div>
+        <button onclick="if(document.referrer&&document.referrer.includes(window.location.host)){history.back()}else{window.location.href='/'}" class="btn-back-link">← Back to Previous</button>
+      </div>
       <div class="section-header">
+
         <span class="section-tag">Pure & Traditional</span>
         <h1 class="section-title">Our Sacred Collections</h1>
         <div class="section-line"></div>

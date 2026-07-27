@@ -204,8 +204,59 @@
  .nav-actions {
    display: flex;
    align-items: center;
-   gap: 1.5rem;
+   gap: 1rem;
  }
+
+ /* Navigation Back Buttons */
+ .btn-back-nav {
+   display: inline-flex;
+   align-items: center;
+   gap: 5px;
+   padding: 0.4rem 0.95rem;
+   background-color: rgba(243, 112, 34, 0.08);
+   color: var(--color-primary-dark);
+   border: 1px solid rgba(243, 112, 34, 0.25);
+   border-radius: var(--radius-full, 50px);
+   font-size: 0.85rem;
+   font-weight: 600;
+   cursor: pointer;
+   text-decoration: none;
+   transition: all var(--transition-fast, 0.2s ease);
+ }
+
+ .btn-back-nav:hover {
+   background-color: var(--color-primary);
+   color: white;
+   border-color: var(--color-primary);
+   transform: translateX(-3px);
+   box-shadow: 0 4px 12px rgba(243, 112, 34, 0.25);
+ }
+
+ .btn-back-link {
+   display: inline-flex;
+   align-items: center;
+   gap: 5px;
+   padding: 0.35rem 0.85rem;
+   background: white;
+   color: var(--color-text-light);
+   border: 1px solid rgba(0, 0, 0, 0.12);
+   border-radius: var(--radius-full, 50px);
+   font-size: 0.85rem;
+   font-weight: 600;
+   cursor: pointer;
+   text-decoration: none;
+   margin-bottom: 1rem;
+   box-shadow: 0 2px 6px rgba(0, 0, 0, 0.04);
+   transition: all var(--transition-fast, 0.2s ease);
+ }
+
+ .btn-back-link:hover {
+   color: var(--color-primary);
+   border-color: var(--color-primary);
+   background-color: rgba(243, 112, 34, 0.06);
+   transform: translateX(-3px);
+ }
+
 
  /* Cart Trigger Icon */
  .cart-trigger {
