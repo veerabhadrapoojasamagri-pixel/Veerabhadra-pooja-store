@@ -93,6 +93,16 @@ if (!process.env.VERCEL) {
 
 const app = express();
 app.use(express.json());
+
+// HTTP Security Headers (A+ Security & Lighthouse Audit Optimization)
+app.use((req, res, next) => {
+  res.setHeader('X-Content-Type-Options', 'nosniff');
+  res.setHeader('X-Frame-Options', 'SAMEORIGIN');
+  res.setHeader('X-XSS-Protection', '1; mode=block');
+  res.setHeader('Referrer-Policy', 'strict-origin-when-cross-origin');
+  next();
+});
+
 const PORT = process.env.PORT || 3000;
 
 // â”€â”€â”€ Cloudinary Image Storage (used when CLOUDINARY_CLOUD_NAME is set) â”€â”€â”€â”€â”€â”€â”€â”€
@@ -297,7 +307,7 @@ app.get('/api/whatsapp-status', (req, res) => {
   });
 });
 
-// GET WhatsApp QR code / status
+// GET WhatsApp QR code / status (supports Green API, UltraMsg, and local whatsapp-web.js)
 app.get('/api/whatsapp-qr', (req, res) => {
   // Green API configured — free option, no QR needed from this panel
   if (process.env.GREEN_API_ID && process.env.GREEN_API_TOKEN) {
@@ -358,8 +368,7 @@ app.post('/api/send-whatsapp', async (req, res) => {
       }
       throw new Error(body.message || JSON.stringify(body));
     } catch (err) {
-      console.error('[GreenAPI] Error:', err.message);
-      return res.status(500).json({ error: 'Green API send failed: ' + err.message });
+      console.error('[GreenAPI] Send failed, falling back to next provider:', err.message);
     }
   }
 
@@ -393,8 +402,7 @@ app.post('/api/send-whatsapp', async (req, res) => {
       }
       throw new Error(body.error || JSON.stringify(body));
     } catch (err) {
-      console.error('[UltraMsg] Error:', err.message);
-      return res.status(500).json({ error: 'UltraMsg send failed: ' + err.message });
+      console.error('[UltraMsg] Send failed, falling back to local provider:', err.message);
     }
   }
 
@@ -419,6 +427,22 @@ app.post('/api/send-whatsapp', async (req, res) => {
   });
 });
 
+// SEO Routes: Serve sitemap.xml, robots.txt, and manifest.json
+app.get('/sitemap.xml', (req, res) => {
+  res.header('Content-Type', 'application/xml');
+  res.sendFile(path.join(__dirname, 'public', 'sitemap.xml'));
+});
+
+app.get('/robots.txt', (req, res) => {
+  res.header('Content-Type', 'text/plain');
+  res.sendFile(path.join(__dirname, 'public', 'robots.txt'));
+});
+
+app.get('/manifest.json', (req, res) => {
+  res.header('Content-Type', 'application/manifest+json');
+  res.sendFile(path.join(__dirname, 'public', 'manifest.json'));
+});
+
 // Redirect clean routes to corresponding static HTML files
 app.get('/', (req, res) => {
   res.sendFile(path.join(__dirname, 'public', 'index.html'));
@@ -434,6 +458,14 @@ app.get('/rental', (req, res) => {
 
 app.get('/contact', (req, res) => {
   res.sendFile(path.join(__dirname, 'public', 'contact.html'));
+});
+
+app.get('/login', (req, res) => {
+  res.sendFile(path.join(__dirname, 'public', 'login.html'));
+});
+
+app.get('/dashboard', (req, res) => {
+  res.sendFile(path.join(__dirname, 'public', 'dashboard.html'));
 });
 
 app.get('/admin', (req, res) => {
@@ -457,12 +489,29 @@ app.get('/contact.html', (req, res) => {
   res.redirect(301, '/contact');
 });
 
-// Serve assets (CSS, JS, Images) from the public directory
-app.use(express.static(path.join(__dirname, 'public')));
+app.get('/login.html', (req, res) => {
+  res.redirect(301, '/login');
+});
+
+app.get('/dashboard.html', (req, res) => {
+  res.redirect(301, '/dashboard');
+});
+
+// Serve assets (CSS, JS, Images) from the public directory with Browser Caching (Core Web Vitals Optimization)
+app.use(express.static(path.join(__dirname, 'public'), {
+  maxAge: '7d',
+  setHeaders: (res, filePath) => {
+    if (filePath.endsWith('.html')) {
+      res.setHeader('Cache-Control', 'public, max-age=0, must-revalidate');
+    } else if (filePath.endsWith('.jpg') || filePath.endsWith('.png') || filePath.endsWith('.webp') || filePath.endsWith('.ico') || filePath.endsWith('.css') || filePath.endsWith('.js')) {
+      res.setHeader('Cache-Control', 'public, max-age=604800, immutable');
+    }
+  }
+}));
 
 // Fallback 404 handler
 app.use((req, res) => {
-  res.status(404).sendFile(path.join(__dirname, 'public', 'index.html')); // Fallback to home or a custom 404 page
+  res.status(404).sendFile(path.join(__dirname, 'public', 'index.html'));
 });
 
 // Local development: start HTTP server

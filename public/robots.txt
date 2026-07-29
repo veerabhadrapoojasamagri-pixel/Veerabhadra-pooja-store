@@ -1,0 +1,24 @@
+# ============================================
+# Robots.txt for Veerabhadra Pooja Store
+# https://divinepoojastore.in
+# ============================================
+
+User-agent: *
+Allow: /
+Allow: /products
+Allow: /rental
+Allow: /contact
+Allow: /login
+Allow: /images/
+Allow: /css/
+Allow: /js/
+
+# Disallow private user & admin management portals
+Disallow: /admin
+Disallow: /admin.html
+Disallow: /dashboard
+Disallow: /dashboard.html
+Disallow: /api/
+
+# Sitemap Location
+Sitemap: https://divinepoojastore.in/sitemap.xml

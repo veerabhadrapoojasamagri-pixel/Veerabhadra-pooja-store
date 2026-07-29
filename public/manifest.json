@@ -1,0 +1,23 @@
+{
+  "short_name": "Pooja Store",
+  "name": "Veerabhadra Pooja Store - Buy & Rent Pooja Essentials",
+  "description": "Shop traditional brass & copper pooja items or rent premium Vratam Peta setup kits in Hyderabad, India.",
+  "icons": [
+    {
+      "src": "images/logo.jpg",
+      "type": "image/jpeg",
+      "sizes": "192x192"
+    },
+    {
+      "src": "images/logo.jpg",
+      "type": "image/jpeg",
+      "sizes": "512x512"
+    }
+  ],
+  "start_url": "/",
+  "background_color": "#FFFDF8",
+  "theme_color": "#800000",
+  "display": "standalone",
+  "orientation": "portrait",
+  "scope": "/"
+}

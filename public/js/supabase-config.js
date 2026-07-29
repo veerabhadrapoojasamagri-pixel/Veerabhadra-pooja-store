@@ -1,7 +1,7 @@
 // Supabase Configuration
 // Default public fallback values (loaded dynamically from server .env when backend is running)
-let SUPABASE_URL = 'https://mhxamvaewbxrjornobrs.supabase.co';
-let SUPABASE_ANON_KEY = 'sb_publishable_0zqmyZcM5zw2nn8EU2tzUw_yP2-8fCs';
+let SUPABASE_URL = 'https://jldnhqzjvfdysmvemdmv.supabase.co';
+let SUPABASE_ANON_KEY = 'sb_publishable_o3RX1U7g9yAKTsUk9PDl5g_GjkpFyF8';
 
 let supabaseClient;
 if (typeof supabase !== 'undefined') {
