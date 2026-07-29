@@ -1077,21 +1077,103 @@ function renderRentals() {
 }
 
 // Toggle Out-of-Stock status for a product
-function toggleOutOfStock(id) {
+async function toggleOutOfStock(id) {
   const index = items.findIndex(i => i.id === id);
   if (index === -1) return;
 
+  const wasOos = !!items[index].outOfStock;
   items[index].outOfStock = !items[index].outOfStock;
-  const newStatus = items[index].outOfStock;
+  const isOosNow = !!items[index].outOfStock;
 
   // Persist to localStorage
   saveData();
 
   // Show feedback toast
-  showToast(`"${items[index].name}" marked as ${newStatus ? 'Out of Stock' : 'In Stock'}.`);
+  showToast(`"${items[index].name}" marked as ${isOosNow ? 'Out of Stock' : 'In Stock'}.`);
 
   // Re-render products table to reflect changes
   renderProducts();
+
+  // If item was Out of Stock and is now Back In Stock, send WhatsApp notifications to waiting customers
+  if (wasOos && !isOosNow) {
+    notifyWaitingCustomersForStock(items[index]);
+  }
+}
+
+// Send automated WhatsApp alerts to customers who clicked "Notify Me" for a product
+async function notifyWaitingCustomersForStock(item) {
+  let subscribers = [];
+
+  // 1. Fetch pending notifications from Supabase
+  if (typeof supabaseClient !== 'undefined') {
+    try {
+      const { data, error } = await supabaseClient
+        .from('stock_notifications')
+        .select('*')
+        .eq('product_id', item.id)
+        .eq('notified', false);
+
+      if (!error && data && data.length > 0) {
+        subscribers = data;
+      }
+    } catch (e) {
+      console.error('Supabase fetch stock_notifications error:', e);
+    }
+  }
+
+  // 2. Fetch pending notifications from LocalStorage fallback
+  try {
+    const localNotifs = JSON.parse(localStorage.getItem('pooja_stock_notifications') || '[]');
+    const localPending = localNotifs.filter(n => n.product_id === item.id && !n.notified);
+    subscribers = subscribers.concat(localPending);
+  } catch (e) {}
+
+  if (subscribers.length === 0) return;
+
+  let notifiedCount = 0;
+  showToast(`📢 Sending back-in-stock WhatsApp alerts to ${subscribers.length} customer(s)...`);
+
+  for (const sub of subscribers) {
+    const custName = sub.customer_name || 'Customer';
+    const mobile = sub.mobile_number;
+    if (!mobile) continue;
+
+    const message = `🎉 *Good News from Veerabhadra Pooja Store!* 🪔\n\nHello ${custName},\n\nGreat news! *${item.name}* is now *BACK IN STOCK*! ✅\n\nVisit our website to place your order now, or reply directly to this message.\n\nThank you for shopping with Veerabhadra Pooja Store! 🙏`;
+
+    try {
+      const res = await fetch('/api/send-whatsapp', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ to: mobile, message: message })
+      });
+      if (res.ok) notifiedCount++;
+    } catch (err) {
+      console.error(`Failed to send WhatsApp stock alert to ${mobile}:`, err);
+    }
+
+    // Mark as notified in Supabase
+    if (sub.id && typeof supabaseClient !== 'undefined') {
+      try {
+        await supabaseClient
+          .from('stock_notifications')
+          .update({ notified: true })
+          .eq('id', sub.id);
+      } catch (e) {}
+    }
+  }
+
+  // Mark local storage records as notified
+  try {
+    const localNotifs = JSON.parse(localStorage.getItem('pooja_stock_notifications') || '[]');
+    localNotifs.forEach(n => {
+      if (n.product_id === item.id) n.notified = true;
+    });
+    localStorage.setItem('pooja_stock_notifications', JSON.stringify(localNotifs));
+  } catch (e) {}
+
+  if (notifiedCount > 0) {
+    showToast(`✅ Sent WhatsApp back-in-stock alert to ${notifiedCount} waiting customer(s)!`);
+  }
 }
 
 // Form CRUD Operations

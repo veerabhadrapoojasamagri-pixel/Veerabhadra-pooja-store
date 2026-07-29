@@ -88,9 +88,10 @@ function buildProductCardHtml(item) {
                 data-image="${item.image || 'images/brass-diya.png'}">
                 Add to Cart
               </button>
-              <button class="btn btn-sm" disabled
-                style="opacity:0.45;cursor:not-allowed;pointer-events:none;background:#e2e8f0;color:#94a3b8;border:none;border-radius:var(--radius-full,50px);font-size:0.875rem;font-weight:600;padding:0.6rem 1.2rem;">
-                Unavailable
+              <button class="btn btn-sm"
+                onclick="subscribeStockNotification('${item.id}', '${safeName}')"
+                style="background: linear-gradient(135deg, #25D366, #128C7E); color: #fff; border: none; border-radius: var(--radius-full, 50px); font-size: 0.825rem; font-weight: 700; padding: 0.55rem 1.1rem; cursor: pointer; display: inline-flex; align-items: center; gap: 4px; box-shadow: 0 4px 12px rgba(37,211,102,0.3); pointer-events: auto;">
+                🔔 Notify Me
               </button>`
             : `<button class="btn btn-secondary btn-sm add-to-cart-btn"
                 data-id="${item.id}"
@@ -241,14 +242,14 @@ function renderRatings() {
           cartBtn.setAttribute('disabled', 'true');
           cartBtn.style.cssText = 'opacity:0.45;cursor:not-allowed;pointer-events:none;';
           
-          // Replace Order Now button with Unavailable
+          // Replace Order Now button with "Notify Me" button for Out of Stock items
           const orderNowBtn = card.querySelector('button[onclick^="orderDirect"]');
           if (orderNowBtn) {
-            orderNowBtn.setAttribute('disabled', 'true');
-            orderNowBtn.removeAttribute('onclick');
-            orderNowBtn.className = 'btn btn-sm';
-            orderNowBtn.style.cssText = 'opacity:0.45;cursor:not-allowed;pointer-events:none;background:#e2e8f0;color:#94a3b8;border:none;border-radius:var(--radius-full,50px);font-size:0.875rem;font-weight:600;padding:0.6rem 1.2rem;';
-            orderNowBtn.textContent = 'Unavailable';
+            orderNowBtn.removeAttribute('disabled');
+            orderNowBtn.style.cssText = 'background: linear-gradient(135deg, #25D366, #128C7E); color: #fff; border: none; border-radius: var(--radius-full, 50px); font-size: 0.825rem; font-weight: 700; padding: 0.55rem 1.1rem; cursor: pointer; display: inline-flex; align-items: center; gap: 4px; box-shadow: 0 4px 12px rgba(37,211,102,0.3); pointer-events: auto;';
+            orderNowBtn.innerHTML = '🔔 Notify Me';
+            const escapedName = (item.name || '').replace(/'/g, "\\'");
+            orderNowBtn.setAttribute('onclick', `subscribeStockNotification('${item.id}', '${escapedName}')`);
           }
         }
 
@@ -1088,4 +1089,76 @@ function initBookingForm() {
     });
   }
 }
+
+// Subscribe to Back-in-Stock WhatsApp Notifications
+window.subscribeStockNotification = async function(productId, productName) {
+  let customerName = 'Customer';
+  let mobileNumber = '';
+
+  // Check if user is logged in
+  if (typeof supabaseClient !== 'undefined') {
+    try {
+      const { data: { session } } = await supabaseClient.auth.getSession();
+      if (session && session.user) {
+        customerName = session.user.user_metadata?.full_name || 'Customer';
+        mobileNumber = session.user.user_metadata?.phone || '';
+      }
+    } catch (e) {
+      console.log('Error fetching user session:', e);
+    }
+  }
+
+  // Prompt for mobile number if not present in profile
+  if (!mobileNumber) {
+    const input = prompt(`🔔 Back in Stock Alert\n\nEnter your 10-digit Mobile Number to receive a WhatsApp alert when "${productName}" is back in stock:`);
+    if (!input) return;
+    mobileNumber = input.replace(/\D/g, '');
+    if (mobileNumber.length < 10) {
+      alert('Please enter a valid 10-digit mobile number.');
+      return;
+    }
+  }
+
+  // Store subscription in Supabase table `stock_notifications`
+  let saved = false;
+  if (typeof supabaseClient !== 'undefined') {
+    try {
+      const { error } = await supabaseClient
+        .from('stock_notifications')
+        .insert({
+          product_id: productId,
+          product_name: productName,
+          customer_name: customerName,
+          mobile_number: mobileNumber,
+          notified: false
+        });
+      if (!error) saved = true;
+    } catch (err) {
+      console.error('Supabase stock_notifications insert error:', err);
+    }
+  }
+
+  // Local storage fallback
+  if (!saved) {
+    try {
+      const existing = JSON.parse(localStorage.getItem('pooja_stock_notifications') || '[]');
+      existing.push({
+        id: Date.now(),
+        product_id: productId,
+        product_name: productName,
+        customer_name: customerName,
+        mobile_number: mobileNumber,
+        notified: false,
+        created_at: new Date().toISOString()
+      });
+      localStorage.setItem('pooja_stock_notifications', JSON.stringify(existing));
+      saved = true;
+    } catch (e) {
+      console.error('LocalStorage stock_notifications error:', e);
+    }
+  }
+
+  alert(`✅ Thank you, ${customerName}!\n\nWe will send a WhatsApp alert to +91 ${mobileNumber} as soon as "${productName}" is back in stock! 🪔`);
+};
+
 

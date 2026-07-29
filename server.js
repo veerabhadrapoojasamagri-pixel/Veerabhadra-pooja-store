@@ -217,6 +217,14 @@ function getDefaultOrders() {
 }
 
 
+// GET public client configuration loaded from .env
+app.get('/api/config', (req, res) => {
+  res.json({
+    supabaseUrl: process.env.SUPABASE_URL || '',
+    supabaseAnonKey: process.env.SUPABASE_ANON_KEY || ''
+  });
+});
+
 // GET all orders
 app.get('/api/orders', async (req, res) => {
   try {
