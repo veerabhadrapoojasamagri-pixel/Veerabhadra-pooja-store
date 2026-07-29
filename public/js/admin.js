@@ -530,7 +530,7 @@ async function handleAdminGoogleLogin() {
     const { data, error } = await supabaseClient.auth.signInWithOAuth({
       provider: 'google',
       options: {
-        redirectTo: window.location.origin + '/admin.html'
+        redirectTo: window.location.origin + '/admin'
       }
     });
 

@@ -215,16 +215,18 @@ async function handleGoogleLogin() {
     const errorEl = document.getElementById('loginGlobalError');
     if (errorEl) errorEl.style.display = 'none';
 
+    const redirectUrl = window.location.origin + '/';
+
     const { data, error } = await supabaseClient.auth.signInWithOAuth({
       provider: 'google',
       options: {
-        redirectTo: window.location.origin + '/index.html'
+        redirectTo: redirectUrl
       }
     });
 
     if (error) {
       if (errorEl) {
-        errorEl.textContent = error.message || 'Google Sign-In failed. Please check Supabase configuration.';
+        errorEl.textContent = error.message || 'Google Sign-In is not configured in Supabase. Please enable Google provider in your Supabase Dashboard.';
         errorEl.style.display = 'block';
       } else {
         alert(error.message);
@@ -244,8 +246,10 @@ async function handleGoogleLogin() {
 
 // Auto-redirect if already logged in
 window.addEventListener('DOMContentLoaded', async () => {
-  const { data: { session } } = await supabaseClient.auth.getSession();
-  if (session) {
-    window.location.replace('index.html');
+  if (typeof supabaseClient !== 'undefined' && supabaseClient.auth) {
+    const { data: { session } } = await supabaseClient.auth.getSession();
+    if (session) {
+      window.location.replace('/');
+    }
   }
 });
