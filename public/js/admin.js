@@ -1110,35 +1110,44 @@ async function notifyWaitingCustomersForStock(item) {
       const { data, error } = await supabaseClient
         .from('stock_notifications')
         .select('*')
-        .eq('product_id', item.id)
+        .or(`product_id.eq.${item.id},product_name.eq.${item.name}`)
         .eq('notified', false);
 
       if (!error && data && data.length > 0) {
         subscribers = data;
       }
     } catch (e) {
-      console.error('Supabase fetch stock_notifications error:', e);
+      console.warn('Supabase fetch stock_notifications fallback:', e);
     }
   }
 
   // 2. Fetch pending notifications from LocalStorage fallback
   try {
     const localNotifs = JSON.parse(localStorage.getItem('pooja_stock_notifications') || '[]');
-    const localPending = localNotifs.filter(n => n.product_id === item.id && !n.notified);
-    subscribers = subscribers.concat(localPending);
+    const localPending = localNotifs.filter(n => !n.notified && (n.product_id === item.id || n.product_name === item.name));
+    
+    // Merge without duplicate mobile numbers
+    localPending.forEach(lp => {
+      const exists = subscribers.some(s => s.mobile_number === lp.mobile_number);
+      if (!exists) subscribers.push(lp);
+    });
   } catch (e) {}
 
-  if (subscribers.length === 0) return;
+  if (subscribers.length === 0) {
+    showToast(`ℹ️ No waiting subscribers for "${item.name}".`);
+    return;
+  }
 
   let notifiedCount = 0;
   showToast(`📢 Sending back-in-stock WhatsApp alerts to ${subscribers.length} customer(s)...`);
 
   for (const sub of subscribers) {
     const custName = sub.customer_name || 'Customer';
-    const mobile = sub.mobile_number;
+    let mobile = (sub.mobile_number || '').replace(/\D/g, '');
     if (!mobile) continue;
+    if (mobile.length === 10) mobile = '91' + mobile;
 
-    const message = `🎉 *Good News from Veerabhadra Pooja Store!* 🪔\n\nHello ${custName},\n\nGreat news! *${item.name}* is now *BACK IN STOCK*! ✅\n\nVisit our website to place your order now, or reply directly to this message.\n\nThank you for shopping with Veerabhadra Pooja Store! 🙏`;
+    const message = `🎉 *Good News from Veerabhadra Pooja Store!* 🪔\n\nHello ${custName},\n\nGreat news! *${item.name}* is now *BACK IN STOCK*! ✅\n\nVisit our website to place your order now, or reply directly to this message to order.\n\nThank you for shopping with Veerabhadra Pooja Store! 🙏`;
 
     try {
       const res = await fetch('/api/send-whatsapp', {
@@ -1148,11 +1157,11 @@ async function notifyWaitingCustomersForStock(item) {
       });
       if (res.ok) notifiedCount++;
     } catch (err) {
-      console.error(`Failed to send WhatsApp stock alert to ${mobile}:`, err);
+      console.error(`Failed to send WhatsApp stock alert to +${mobile}:`, err);
     }
 
-    // Mark as notified in Supabase
-    if (sub.id && typeof supabaseClient !== 'undefined') {
+    // Mark as notified in Supabase if record has a Supabase database ID
+    if (sub.id && typeof sub.id === 'number' && typeof supabaseClient !== 'undefined') {
       try {
         await supabaseClient
           .from('stock_notifications')
@@ -1166,7 +1175,7 @@ async function notifyWaitingCustomersForStock(item) {
   try {
     const localNotifs = JSON.parse(localStorage.getItem('pooja_stock_notifications') || '[]');
     localNotifs.forEach(n => {
-      if (n.product_id === item.id) n.notified = true;
+      if (n.product_id === item.id || n.product_name === item.name) n.notified = true;
     });
     localStorage.setItem('pooja_stock_notifications', JSON.stringify(localNotifs));
   } catch (e) {}
@@ -1573,7 +1582,7 @@ function hidePreview() {
    ======================================================== */
 
 // Google Maps Review Link for Customer Reviews
-const GOOGLE_MAPS_REVIEW_URL = 'https://maps.google.com/?q=Hydershahkote+Madhavi+Nagar+Shanti+Nagar+Busstop+Ranga+Reddy';
+const GOOGLE_MAPS_REVIEW_URL = 'https://maps.app.goo.gl/1nRcdZRke6M8r8ER8';
 
 // Notification Service
 const NotificationService = {

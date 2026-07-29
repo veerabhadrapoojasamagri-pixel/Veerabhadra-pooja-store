@@ -1119,46 +1119,49 @@ window.subscribeStockNotification = async function(productId, productName) {
     }
   }
 
-  // Store subscription in Supabase table `stock_notifications`
-  let saved = false;
+  // Clean phone number (ensure 10 digits or 91 country code)
+  let cleanMobile = mobileNumber.replace(/\D/g, '');
+  if (cleanMobile.length === 10) cleanMobile = '91' + cleanMobile;
+
+  // 1. Store subscription in LocalStorage (guaranteed local availability)
+  try {
+    const existing = JSON.parse(localStorage.getItem('pooja_stock_notifications') || '[]');
+    // Avoid duplicate pending subscription for same product and mobile
+    const alreadySubscribed = existing.some(n => !n.notified && (n.product_id === productId || n.product_name === productName) && n.mobile_number === cleanMobile);
+    if (!alreadySubscribed) {
+      existing.push({
+        id: 'sn-' + Date.now(),
+        product_id: productId,
+        product_name: productName,
+        customer_name: customerName,
+        mobile_number: cleanMobile,
+        notified: false,
+        created_at: new Date().toISOString()
+      });
+      localStorage.setItem('pooja_stock_notifications', JSON.stringify(existing));
+    }
+  } catch (e) {
+    console.error('LocalStorage stock_notifications error:', e);
+  }
+
+  // 2. Store subscription in Supabase table `stock_notifications`
   if (typeof supabaseClient !== 'undefined') {
     try {
-      const { error } = await supabaseClient
+      await supabaseClient
         .from('stock_notifications')
         .insert({
           product_id: productId,
           product_name: productName,
           customer_name: customerName,
-          mobile_number: mobileNumber,
+          mobile_number: cleanMobile,
           notified: false
         });
-      if (!error) saved = true;
     } catch (err) {
-      console.error('Supabase stock_notifications insert error:', err);
+      console.warn('Supabase stock_notifications insert fallback:', err);
     }
   }
 
-  // Local storage fallback
-  if (!saved) {
-    try {
-      const existing = JSON.parse(localStorage.getItem('pooja_stock_notifications') || '[]');
-      existing.push({
-        id: Date.now(),
-        product_id: productId,
-        product_name: productName,
-        customer_name: customerName,
-        mobile_number: mobileNumber,
-        notified: false,
-        created_at: new Date().toISOString()
-      });
-      localStorage.setItem('pooja_stock_notifications', JSON.stringify(existing));
-      saved = true;
-    } catch (e) {
-      console.error('LocalStorage stock_notifications error:', e);
-    }
-  }
-
-  alert(`✅ Thank you, ${customerName}!\n\nWe will send a WhatsApp alert to +91 ${mobileNumber} as soon as "${productName}" is back in stock! 🪔`);
+  alert(`✅ Thank you, ${customerName}!\n\nWe will send a WhatsApp alert to +${cleanMobile} as soon as "${productName}" is back in stock! 🪔`);
 };
 
 
