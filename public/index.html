@@ -285,49 +285,6 @@
     </div>
   </div>
 
-  <!-- Top Smart Search Strip (Placed directly under Navbar) -->
-  <div class="top-search-strip">
-    <div class="top-search-container">
-      <div class="smart-search-wrapper">
-        <div class="smart-search-box">
-          <input type="text" id="smartSearchInput" class="smart-search-input" placeholder="Search pooja items (e.g. Diya, Kalash, Bell)..." autocomplete="off" aria-label="Search pooja items">
-          <div class="search-right-actions">
-            <button type="button" id="smartSearchClearBtn" class="search-clear-btn" aria-label="Clear search" title="Clear search">&times;</button>
-            <span class="search-action-divider"></span>
-            <button type="button" id="smartSearchCameraBtn" class="search-action-btn" aria-label="Image Search" title="Search by image">
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                <path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"></path>
-                <circle cx="12" cy="13" r="4"></circle>
-              </svg>
-            </button>
-            <button type="button" id="smartSearchVoiceBtn" class="search-action-btn" aria-label="Voice Search" title="Speak to search">
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                <path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z"></path>
-                <path d="M19 10v2a7 7 0 0 1-14 0v-2"></path>
-                <line x1="12" y1="19" x2="12" y2="23"></line>
-                <line x1="8" y1="23" x2="16" y2="23"></line>
-              </svg>
-            </button>
-          </div>
-        </div>
-
-        <!-- Auto-suggestions Dropdown -->
-        <div id="smartSearchDropdown" class="smart-search-dropdown"></div>
-
-        <!-- Quick Search Chips -->
-        <div class="quick-search-chips" id="quickSearchChips">
-          <span class="chips-label">Quick Search:</span>
-          <button type="button" class="quick-chip" data-keyword="Diya">🪔 Diyas</button>
-          <button type="button" class="quick-chip" data-keyword="Bell">🔔 Bells</button>
-          <button type="button" class="quick-chip" data-keyword="Brass">🪙 Brass</button>
-          <button type="button" class="quick-chip" data-keyword="Copper">🥣 Copper</button>
-          <button type="button" class="quick-chip" data-keyword="Frame">🖼️ Frames</button>
-          <button type="button" class="quick-chip" data-keyword="Vratam">🛕 Rentals</button>
-        </div>
-      </div>
-    </div>
-  </div>
-
   <!-- Hero Section -->
   <section class="hero">
     <div class="hero-container">
@@ -636,6 +593,5 @@
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <script src="js/supabase-config.js"></script>
   <script src="js/main.js"></script>
-  <script src="js/smart-search.js"></script>
 </body>
 </html>
