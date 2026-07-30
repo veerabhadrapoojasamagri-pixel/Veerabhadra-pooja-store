@@ -241,9 +241,29 @@
             <line x1="4" y1="18" x2="20" y2="18" />
           </svg>
         </button>
+  </header>
+
+  <!-- Top Smart Search Strip (Sticky under Navbar) -->
+  <div class="top-search-strip">
+    <div class="top-search-container">
+      <div class="smart-search-wrapper">
+        <div class="smart-search-box" role="combobox" aria-haspopup="listbox" aria-expanded="false" aria-owns="smartSearchDropdown">
+          <svg class="search-input-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <circle cx="11" cy="11" r="8"></circle>
+            <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+          </svg>
+          <input type="text" id="smartSearchInput" class="smart-search-input" placeholder="Search pooja items (e.g. Diya, Bell, Kalash)..." autocomplete="off" aria-label="Search pooja items">
+          <div class="search-right-actions">
+            <span class="search-kbd-badge" id="searchKbdBadge" title="Press Ctrl+K to search">Ctrl+K</span>
+            <button type="button" id="smartSearchClearBtn" class="search-clear-btn" aria-label="Clear search text" title="Clear search">&times;</button>
+          </div>
+        </div>
+
+        <!-- Auto-suggestions Dropdown -->
+        <div id="smartSearchDropdown" class="smart-search-dropdown"></div>
       </div>
     </div>
-  </header>
+  </div>
 
   <!-- Mobile Sidebar Menu -->
   <div class="mobile-nav-overlay"></div>
@@ -593,5 +613,6 @@
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <script src="js/supabase-config.js"></script>
   <script src="js/main.js"></script>
+  <script src="js/smart-search.js" defer></script>
 </body>
 </html>
