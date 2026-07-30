@@ -156,16 +156,30 @@
     return text.replace(regex, '<mark class="search-highlight">$1</mark>');
   }
 
+  // Helper: Toggle Hero Searching Mode (hides hero text/badge/buttons when user searches)
+  function setHeroSearchingState(isSearching) {
+    const heroContent = document.querySelector('.hero-content');
+    if (heroContent) {
+      if (isSearching) {
+        heroContent.classList.add('hero-content--searching');
+      } else {
+        heroContent.classList.remove('hero-content--searching');
+      }
+    }
+  }
+
   // Render Suggestions Dropdown
   function renderSuggestions(query) {
     const cleanQuery = query.trim();
     activeIndex = -1;
 
     if (!cleanQuery) {
+      setHeroSearchingState(false);
       renderRecentSearches();
       return;
     }
 
+    setHeroSearchingState(true);
     const matches = performSearch(cleanQuery);
     currentSuggestions = matches;
 
@@ -228,6 +242,7 @@
 
   // Render Recent Searches dropdown view
   function renderRecentSearches() {
+    setHeroSearchingState(false);
     const recents = getRecentSearches();
     currentSuggestions = recents;
     activeIndex = -1;
@@ -287,6 +302,7 @@
   function selectItem(id, name, category) {
     if (name) saveRecentSearch(name);
     dropdown.style.display = 'none';
+    setHeroSearchingState(false);
     
     // Navigate smoothly to products collection with category or anchor
     if (category === 'rentals' || id === 'vratam-peta-kit') {
@@ -330,6 +346,9 @@
     // 1. Input Event with Debounce
     searchInput.addEventListener('input', () => {
       toggleClearBtn();
+      if (!searchInput.value.trim()) {
+        setHeroSearchingState(false);
+      }
       if (debounceTimer) clearTimeout(debounceTimer);
       debounceTimer = setTimeout(() => {
         renderSuggestions(searchInput.value);
@@ -350,6 +369,7 @@
       clearBtn.addEventListener('click', () => {
         searchInput.value = '';
         toggleClearBtn();
+        setHeroSearchingState(false);
         searchInput.focus();
         renderRecentSearches();
       });
@@ -358,6 +378,14 @@
     // 4. Keyboard Navigation Handler (Up, Down, Enter, Escape)
     searchInput.addEventListener('keydown', (e) => {
       const listItems = dropdown.querySelectorAll('.search-suggestion-item, .search-recent-item');
+
+      if (e.key === 'Escape') {
+        dropdown.style.display = 'none';
+        activeIndex = -1;
+        setHeroSearchingState(false);
+        return;
+      }
+
       if (listItems.length === 0 || dropdown.style.display === 'none') return;
 
       if (e.key === 'ArrowDown') {
@@ -378,9 +406,6 @@
           saveRecentSearch(searchInput.value);
           window.location.href = '/products';
         }
-      } else if (e.key === 'Escape') {
-        dropdown.style.display = 'none';
-        activeIndex = -1;
       }
     });
 
@@ -407,6 +432,9 @@
       if (searchWrapper && !searchWrapper.contains(e.target)) {
         dropdown.style.display = 'none';
         activeIndex = -1;
+        if (!searchInput.value.trim()) {
+          setHeroSearchingState(false);
+        }
       }
     });
   }

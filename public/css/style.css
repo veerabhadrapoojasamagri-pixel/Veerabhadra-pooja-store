@@ -1769,6 +1769,25 @@
   color: #000;
 }
 
+/* Clean Search Mode: Hide hero text/badge/buttons when user searches for a product */
+.hero-content.hero-content--searching > .hero-badge,
+.hero-content.hero-content--searching > h1,
+.hero-content.hero-content--searching > p,
+.hero-content.hero-content--searching > .hero-actions {
+  display: none !important;
+}
+
+.hero-content.hero-content--searching .smart-search-wrapper {
+  max-width: 540px !important;
+  margin-bottom: 1.5rem !important;
+  transition: all 0.25s ease;
+}
+
+.hero-content.hero-content--searching .smart-search-dropdown {
+  max-width: 540px !important;
+  box-shadow: 0 16px 40px rgba(0, 0, 0, 0.22), 0 4px 12px rgba(0, 0, 0, 0.08) !important;
+}
+
 /* Floating Dropdown */
 .smart-search-dropdown {
   position: absolute !important;
