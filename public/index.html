@@ -292,6 +292,34 @@
         <span class="hero-badge">Pooja Store & Rentals</span>
         <h1>All Pooja Essentials in One Place</h1>
         <p>Buy or Rent Traditional Pooja Items Easily. Bring home purity, tradition, and spiritual elegance with our handpicked collection of pooja essentials.</p>
+
+        <!-- Smart Search Component -->
+        <div class="smart-search-wrapper">
+          <div class="smart-search-box">
+            <svg class="search-input-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+              <circle cx="11" cy="11" r="8"></circle>
+              <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+            </svg>
+            <input type="text" id="smartSearchInput" class="smart-search-input" placeholder="Search for pooja items (e.g. Diya, Kalash, Bell)..." autocomplete="off" aria-label="Search pooja items">
+            <button type="button" id="smartSearchClearBtn" class="search-clear-btn" aria-label="Clear search">&times;</button>
+          </div>
+
+          <!-- Dropdown Auto-suggestions Container -->
+          <div id="smartSearchDropdown" class="smart-search-dropdown"></div>
+
+          <!-- Quick Search Chips -->
+          <div class="quick-search-chips" id="quickSearchChips">
+            <span class="chips-label">Quick Search:</span>
+            <button type="button" class="quick-chip" data-keyword="Diya">🪔 Diyas</button>
+            <button type="button" class="quick-chip" data-keyword="Bell">🔔 Bells</button>
+            <button type="button" class="quick-chip" data-keyword="Brass">🪙 Brass Items</button>
+            <button type="button" class="quick-chip" data-keyword="Copper">🥣 Copper Items</button>
+            <button type="button" class="quick-chip" data-keyword="Frame">🖼️ Photo Frames</button>
+            <button type="button" class="quick-chip" data-keyword="Daily">🌸 Daily Kits</button>
+            <button type="button" class="quick-chip" data-keyword="Vratam">🛕 Vratam Rentals</button>
+          </div>
+        </div>
+
         <div class="hero-actions">
           <a href="/products" class="btn btn-primary">View Products</a>
           <button class="btn btn-whatsapp" onclick="orderDirect('Home Page Query', 0)">
@@ -592,5 +620,6 @@
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <script src="js/supabase-config.js"></script>
   <script src="js/main.js"></script>
+  <script src="js/smart-search.js"></script>
 </body>
 </html>
