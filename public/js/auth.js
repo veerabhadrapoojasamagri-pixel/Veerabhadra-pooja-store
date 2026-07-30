@@ -105,7 +105,7 @@ async function handleLogin(e) {
     if (error) throw error;
     
     // Redirect to home page on success
-    window.location.replace('index.html');
+    window.location.replace('/');
 
   } catch (err) {
     errorEl.textContent = err.message || 'Failed to sign in.';
@@ -119,18 +119,15 @@ async function handleRegister(e) {
   
   const emailInput = document.getElementById('regEmail');
   const passwordInput = document.getElementById('regPassword');
-  const phoneInput = document.getElementById('regPhone');
-  const nameInput = document.getElementById('regName');
-  
-  const errorEl = document.getElementById('registerGlobalError');
-  const successEl = document.getElementById('registerGlobalSuccess');
+  const confirmPasswordInput = document.getElementById('regConfirmPassword');
+  const errorEl = document.getElementById('regGlobalError');
+  const successEl = document.getElementById('regSuccess');
   
   errorEl.style.display = 'none';
   successEl.style.display = 'none';
 
   if (!validateEmail(emailInput, 'regEmailGroup')) return;
-  if (!validatePhone(phoneInput, 'regPhoneGroup')) return;
-  if (!validatePassword(passwordInput, 'regPasswordGroup')) return;
+  if (!validatePasswordMatch(passwordInput, confirmPasswordInput, 'regConfirmGroup')) return;
 
   setLoading('registerBtn', true);
 
@@ -138,12 +135,6 @@ async function handleRegister(e) {
     const { data, error } = await supabaseClient.auth.signUp({
       email: emailInput.value,
       password: passwordInput.value,
-      options: {
-        data: {
-          full_name: nameInput.value,
-          phone: phoneInput.value
-        }
-      }
     });
 
     if (error) throw error;
@@ -161,7 +152,7 @@ async function handleRegister(e) {
       successEl.textContent = 'Registration successful! Redirecting...';
       successEl.style.display = 'block';
       setTimeout(() => {
-        window.location.href = 'dashboard.html';
+        window.location.href = '/dashboard';
       }, 1500);
     }
 
