@@ -1728,22 +1728,32 @@
 
 .smart-search-input {
   width: 100%;
-  padding: 0.55rem 2.2rem 0.55rem 1.1rem;
-  font-size: 0.88rem;
+  padding: 0.65rem 2.4rem 0.65rem 2.6rem;
+  font-size: 0.9rem;
   font-family: inherit;
-  color: var(--color-text, #2c2c2c);
+  color: #1e293b;
   background: #ffffff;
-  border: 1.5px solid rgba(128, 0, 0, 0.18);
-  border-radius: var(--radius-full, 50px);
-  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+  border: 1.5px solid rgba(128, 0, 0, 0.22);
+  border-radius: 50px;
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.05);
   transition: all 0.25s ease;
   outline: none;
 }
 
 .smart-search-input:focus {
-  border-color: var(--color-accent, #d4af37);
-  box-shadow: 0 4px 16px rgba(128, 0, 0, 0.14), 0 0 0 3px rgba(212, 175, 55, 0.2);
+  border-color: #800000;
+  box-shadow: 0 6px 20px rgba(128, 0, 0, 0.15), 0 0 0 3px rgba(212, 175, 55, 0.25);
   background: #ffffff;
+}
+
+.search-input-icon {
+  position: absolute;
+  left: 0.9rem;
+  width: 16px;
+  height: 16px;
+  color: #800000;
+  opacity: 0.7;
+  pointer-events: none;
 }
 
 .search-clear-btn {

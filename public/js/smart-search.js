@@ -86,62 +86,73 @@
     renderRecentSearches();
   }
 
-  // Matching Engine: Multi-field Partial & Synonym Search
+  // Matching Engine: Multi-field Partial, Synonym & Precision Relevance Search
   function performSearch(query) {
     const rawQuery = query.trim().toLowerCase();
     if (!rawQuery) return [];
 
     const catalog = getCatalogItems();
     
-    // Find expanded synonym terms
-    let expandedTerms = [rawQuery];
+    // Find relevant expanded synonym terms
+    let expandedTerms = [];
     Object.keys(SYNONYM_MAP).forEach(key => {
-      if (key.includes(rawQuery) || rawQuery.includes(key)) {
+      if (key === rawQuery || rawQuery.includes(key) || key.startsWith(rawQuery)) {
         expandedTerms.push(key, ...SYNONYM_MAP[key]);
       } else {
         SYNONYM_MAP[key].forEach(syn => {
-          if (syn.includes(rawQuery) || rawQuery.includes(syn)) {
+          if (syn === rawQuery || (rawQuery.length >= 3 && syn.includes(rawQuery))) {
             expandedTerms.push(key, syn);
           }
         });
       }
     });
-    expandedTerms = Array.from(new Set(expandedTerms));
+    expandedTerms = Array.from(new Set(expandedTerms.map(t => t.toLowerCase())));
 
     const scoredResults = catalog.map(item => {
-      let score = 0;
+      let matchScore = 0;
       const name = (item.name || '').toLowerCase();
       const category = (item.category || '').toLowerCase();
       const desc = (item.description || '').toLowerCase();
       const type = (item.type || '').toLowerCase();
 
-      // Exact name match
-      if (name === rawQuery) score += 100;
-      // Name starts with query
-      else if (name.startsWith(rawQuery)) score += 80;
-      // Name contains query
-      else if (name.includes(rawQuery)) score += 60;
+      // 1. Exact or Prefix Name Match (Highest Priority)
+      if (name === rawQuery) {
+        matchScore += 100;
+      } else if (name.startsWith(rawQuery)) {
+        matchScore += 80;
+      } else if (name.includes(rawQuery)) {
+        matchScore += 60;
+      }
 
-      // Category matches
-      if (category.includes(rawQuery)) score += 40;
-      if (type.includes(rawQuery)) score += 30;
-      if (desc.includes(rawQuery)) score += 20;
+      // 2. Category & Type Match
+      const cleanCat = category.replace(/-/g, ' ');
+      if (cleanCat.includes(rawQuery) || type.includes(rawQuery)) {
+        matchScore += 45;
+      }
 
-      // Synonym expansion matching
+      // 3. Synonym Terms Match
       expandedTerms.forEach(term => {
-        if (name.includes(term)) score += 25;
-        if (category.includes(term)) score += 15;
-        if (desc.includes(term)) score += 10;
+        if (name.includes(term)) matchScore += 35;
+        else if (category.includes(term)) matchScore += 25;
+        else if (desc.includes(term)) matchScore += 15;
       });
 
-      // Rating & Popularity boost
-      if (item.rating) score += item.rating * 2;
-      if (item.type === 'rental') score += 5; // Highlight unique rental service
+      // 4. Description Match (Only for queries >= 3 chars)
+      if (rawQuery.length >= 3 && desc.includes(rawQuery)) {
+        matchScore += 20;
+      }
 
-      return { item, score };
+      // STRICT RULE: Exclude product completely if no text match occurred!
+      if (matchScore === 0) {
+        return { item, score: 0 };
+      }
+
+      // Add small rating boost ONLY for genuinely matched items as a tie-breaker
+      let totalScore = matchScore + (item.rating || 0);
+      return { item, score: totalScore };
     });
 
-    // Filter non-zero scores and sort descending by score
+    // Filter items with positive match scores and sort descending by relevance score
     return scoredResults
       .filter(res => res.score > 0)
       .sort((a, b) => b.score - a.score)
