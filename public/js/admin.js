@@ -1001,6 +1001,13 @@ function clearProductSearch() {
   renderProducts();
 }
 
+function highlightText(text, query) {
+  if (!query) return text;
+  const escapedQuery = query.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+  const regex = new RegExp(`(${escapedQuery})`, 'gi');
+  return text.replace(regex, '<mark class="search-highlight" style="background-color: rgba(251, 191, 36, 0.3); color: #b45309; padding: 0 2px; border-radius: 3px; font-weight: 600;">$1</mark>');
+}
+
 // 2. Render Products list tab
 function renderProducts() {
   const tableBody = document.getElementById('productsTableBody');
@@ -1016,7 +1023,11 @@ function renderProducts() {
   }
 
   if (products.length === 0) {
-    tableBody.innerHTML = `<tr><td colspan="5" style="text-align:center; padding:2rem; color:var(--color-text-muted);">No products found.</td></tr>`;
+    tableBody.innerHTML = `<tr><td colspan="6" style="text-align:center; padding:3rem; color:var(--color-text-muted);">
+      <div style="font-size:2rem; margin-bottom:1rem;">🪔</div>
+      <div style="font-weight:600; font-size:1.1rem; color:var(--color-text);">No products found for "${productSearchQuery}"</div>
+      <div style="font-size:0.9rem; margin-top:0.5rem;">Try adjusting your search or add a new product.</div>
+    </td></tr>`;
     return;
   }
 
@@ -1024,18 +1035,23 @@ function renderProducts() {
     const saveAmt = Math.max(0, p.mrp - p.price);
     const categoryName = p.category ? p.category.replace('-', ' ') : 'Pooja items';
     const isOOS = !!p.outOfStock;
+    
+    // Highlight matched text
+    const displayName = productSearchQuery ? highlightText(p.name, productSearchQuery) : p.name;
+    const displayCategory = productSearchQuery ? highlightText(categoryName, productSearchQuery) : categoryName;
+
     return `
       <tr>
         <td>
           <div class="item-cell-info">
             <img src="${p.image || 'images/brass-diya.png'}" alt="" class="item-cell-img" style="${isOOS ? 'opacity:0.5;' : ''}">
             <div>
-              <span class="item-cell-name" style="display:block;">${p.name}${isOOS ? '<span class="out-of-stock-badge">Out of Stock</span>' : ''}</span>
+              <span class="item-cell-name" style="display:block;">${displayName}${isOOS ? '<span class="out-of-stock-badge">Out of Stock</span>' : ''}</span>
               ${p.variants && p.variants.length > 0 ? `<span style="font-size:0.75rem; color:var(--color-primary); font-weight:600; display:block; margin-top:2px;">Custom Quantities: ${p.variants.map(v => v.name).join(', ')}</span>` : ''}
             </div>
           </div>
         </td>
-        <td><span class="badge-category">${categoryName}</span></td>
+        <td><span class="badge-category">${displayCategory}</span></td>
         <td>
           <div class="price-box">
             <span class="price-selling">₹${p.price}</span>
