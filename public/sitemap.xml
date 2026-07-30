@@ -12,7 +12,7 @@
   <!-- Homepage -->
   <url>
     <loc>https://divinepoojastore.in/</loc>
-    <lastmod>2026-07-29</lastmod>
+    <lastmod>2026-07-30</lastmod>
     <changefreq>daily</changefreq>
     <priority>1.00</priority>
     <image:image>
@@ -28,7 +28,7 @@
   <!-- Products Collection Page -->
   <url>
     <loc>https://divinepoojastore.in/products</loc>
-    <lastmod>2026-07-29</lastmod>
+    <lastmod>2026-07-30</lastmod>
     <changefreq>daily</changefreq>
     <priority>0.90</priority>
     <image:image>
@@ -52,7 +52,7 @@
   <!-- Rentals Page -->
   <url>
     <loc>https://divinepoojastore.in/rental</loc>
-    <lastmod>2026-07-29</lastmod>
+    <lastmod>2026-07-30</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.85</priority>
     <image:image>
@@ -64,7 +64,7 @@
   <!-- Contact Us Page -->
   <url>
     <loc>https://divinepoojastore.in/contact</loc>
-    <lastmod>2026-07-29</lastmod>
+    <lastmod>2026-07-30</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.70</priority>
   </url>
@@ -72,7 +72,7 @@
   <!-- Customer Login Page -->
   <url>
     <loc>https://divinepoojastore.in/login</loc>
-    <lastmod>2026-07-29</lastmod>
+    <lastmod>2026-07-30</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.50</priority>
   </url>
