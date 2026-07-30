@@ -261,16 +261,24 @@
             <div class="search-grid">
               <div class="search-input-wrapper">
                 <label for="searchOrderId" class="search-label">Order ID</label>
-                <input type="text" id="searchOrderId" class="form-input search-input" placeholder="e.g. VRB100001" oninput="handleOrderSearch()">
+                <input type="text" id="searchOrderId" class="form-input search-input" placeholder="e.g. VRB100001" onkeyup="if(event.key === 'Enter') handleOrderSearch()">
               </div>
               <div class="search-input-wrapper">
                 <label for="searchCustomerName" class="search-label">Customer Name</label>
-                <input type="text" id="searchCustomerName" class="form-input search-input" placeholder="e.g. Ramesh" oninput="handleOrderSearch()">
+                <input type="text" id="searchCustomerName" class="form-input search-input" placeholder="e.g. Ramesh" onkeyup="if(event.key === 'Enter') handleOrderSearch()">
               </div>
               <div class="search-input-wrapper">
                 <label for="searchMobile" class="search-label">Mobile Number</label>
-                <input type="text" id="searchMobile" class="form-input search-input" placeholder="e.g. 98765" oninput="handleOrderSearch()">
+                <input type="text" id="searchMobile" class="form-input search-input" placeholder="e.g. 98765" onkeyup="if(event.key === 'Enter') handleOrderSearch()">
               </div>
+            </div>
+
+            <div class="search-actions" style="display: flex; gap: 10px; margin-top: 15px; margin-bottom: 20px;">
+              <button class="btn btn-primary btn-sm" onclick="handleOrderSearch()" style="width: auto; padding: 0.5rem 1.5rem; display: flex; align-items: center; justify-content: center; gap: 8px;">
+                <svg viewBox="0 0 24 24" width="16" height="16" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
+                Search Orders
+              </button>
+              <button class="btn btn-secondary btn-sm" onclick="clearOrderSearch()" style="width: auto; padding: 0.5rem 1.5rem;">Clear Search</button>
             </div>
 
             <!-- Status Quick Filters -->

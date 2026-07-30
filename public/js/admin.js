@@ -1706,6 +1706,18 @@ function handleOrderSearch() {
   renderOrders();
 }
 
+// Clear order search fields
+function clearOrderSearch() {
+  document.getElementById('searchOrderId').value = '';
+  document.getElementById('searchCustomerName').value = '';
+  document.getElementById('searchMobile').value = '';
+  orderSearchQuery.id = '';
+  orderSearchQuery.name = '';
+  orderSearchQuery.mobile = '';
+  currentOrderPage = 1;
+  renderOrders();
+}
+
 // Handle orders page size drop-down
 function handleOrdersPerPageChange() {
   const selectEl = document.getElementById('ordersPerPage');
@@ -1992,6 +2004,7 @@ async function confirmStatusUpdate() {
 // Bind to window context
 window.setOrderFilter = setOrderFilter;
 window.handleOrderSearch = handleOrderSearch;
+window.clearOrderSearch = clearOrderSearch;
 window.handleOrdersPerPageChange = handleOrdersPerPageChange;
 window.changeOrderPage = changeOrderPage;
 window.viewOrderDetails = viewOrderDetails;
