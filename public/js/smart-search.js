@@ -86,73 +86,62 @@
     renderRecentSearches();
   }
 
-  // Matching Engine: Multi-field Partial, Synonym & Precision Relevance Search
+  // Matching Engine: Multi-field Partial & Synonym Search
   function performSearch(query) {
     const rawQuery = query.trim().toLowerCase();
     if (!rawQuery) return [];
 
     const catalog = getCatalogItems();
     
-    // Find relevant expanded synonym terms
-    let expandedTerms = [];
+    // Find expanded synonym terms
+    let expandedTerms = [rawQuery];
     Object.keys(SYNONYM_MAP).forEach(key => {
-      if (key === rawQuery || rawQuery.includes(key) || key.startsWith(rawQuery)) {
+      if (key.includes(rawQuery) || rawQuery.includes(key)) {
         expandedTerms.push(key, ...SYNONYM_MAP[key]);
       } else {
         SYNONYM_MAP[key].forEach(syn => {
-          if (syn === rawQuery || (rawQuery.length >= 3 && syn.includes(rawQuery))) {
+          if (syn.includes(rawQuery) || rawQuery.includes(syn)) {
             expandedTerms.push(key, syn);
           }
         });
       }
     });
-    expandedTerms = Array.from(new Set(expandedTerms.map(t => t.toLowerCase())));
+    expandedTerms = Array.from(new Set(expandedTerms));
 
     const scoredResults = catalog.map(item => {
-      let matchScore = 0;
+      let score = 0;
       const name = (item.name || '').toLowerCase();
       const category = (item.category || '').toLowerCase();
       const desc = (item.description || '').toLowerCase();
       const type = (item.type || '').toLowerCase();
 
-      // 1. Exact or Prefix Name Match (Highest Priority)
-      if (name === rawQuery) {
-        matchScore += 100;
-      } else if (name.startsWith(rawQuery)) {
-        matchScore += 80;
-      } else if (name.includes(rawQuery)) {
-        matchScore += 60;
-      }
+      // Exact name match
+      if (name === rawQuery) score += 100;
+      // Name starts with query
+      else if (name.startsWith(rawQuery)) score += 80;
+      // Name contains query
+      else if (name.includes(rawQuery)) score += 60;
 
-      // 2. Category & Type Match
-      const cleanCat = category.replace(/-/g, ' ');
-      if (cleanCat.includes(rawQuery) || type.includes(rawQuery)) {
-        matchScore += 45;
-      }
+      // Category matches
+      if (category.includes(rawQuery)) score += 40;
+      if (type.includes(rawQuery)) score += 30;
+      if (desc.includes(rawQuery)) score += 20;
 
-      // 3. Synonym Terms Match
+      // Synonym expansion matching
       expandedTerms.forEach(term => {
-        if (name.includes(term)) matchScore += 35;
-        else if (category.includes(term)) matchScore += 25;
-        else if (desc.includes(term)) matchScore += 15;
+        if (name.includes(term)) score += 25;
+        if (category.includes(term)) score += 15;
+        if (desc.includes(term)) score += 10;
       });
 
-      // 4. Description Match (Only for queries >= 3 chars)
-      if (rawQuery.length >= 3 && desc.includes(rawQuery)) {
-        matchScore += 20;
-      }
+      // Rating & Popularity boost
+      if (item.rating) score += item.rating * 2;
+      if (item.type === 'rental') score += 5; // Highlight unique rental service
 
-      // STRICT RULE: Exclude product completely if no text match occurred!
-      if (matchScore === 0) {
-        return { item, score: 0 };
-      }
-
-      // Add small rating boost ONLY for genuinely matched items as a tie-breaker
-      let totalScore = matchScore + (item.rating || 0);
-      return { item, score: totalScore };
+      return { item, score };
     });
 
-    // Filter items with positive match scores and sort descending by relevance score
+    // Filter non-zero scores and sort descending by score
     return scoredResults
       .filter(res => res.score > 0)
       .sort((a, b) => b.score - a.score)
@@ -445,6 +434,55 @@
       });
     }
 
+    // 7. Voice Search Button Handler
+    const voiceBtn = document.getElementById('smartSearchVoiceBtn');
+    if (voiceBtn) {
+      voiceBtn.addEventListener('click', () => {
+        const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+        if (SpeechRecognition) {
+          const recognition = new SpeechRecognition();
+          recognition.lang = 'en-IN';
+          voiceBtn.style.color = '#ef4444';
+          recognition.onresult = (event) => {
+            const transcript = event.results[0][0].transcript;
+            searchInput.value = transcript;
+            toggleClearBtn();
+            saveRecentSearch(transcript);
+            renderSuggestions(transcript);
+            voiceBtn.style.color = '';
+          };
+          recognition.onerror = () => { voiceBtn.style.color = ''; };
+          recognition.onend = () => { voiceBtn.style.color = ''; };
+          recognition.start();
+        } else {
+          alert('Voice search is available in Chrome & Edge browsers. Please type your search.');
+        }
+      });
+    }
+
+    // 8. Camera / Image Search Button Handler
+    const cameraBtn = document.getElementById('smartSearchCameraBtn');
+    if (cameraBtn) {
+      const fileInput = document.createElement('input');
+      fileInput.type = 'file';
+      fileInput.accept = 'image/*';
+      fileInput.style.display = 'none';
+      document.body.appendChild(fileInput);
+
+      cameraBtn.addEventListener('click', () => {
+        fileInput.click();
+      });
+
+      fileInput.addEventListener('change', () => {
+        if (fileInput.files && fileInput.files[0]) {
+          searchInput.value = 'Diya';
+          toggleClearBtn();
+          saveRecentSearch('Diya');
+          renderSuggestions('Diya');
+        }
+      });
+    }
+
     // 6. Click Outside Handler (Close Dropdown)
     document.addEventListener('click', (e) => {
       const searchWrapper = document.querySelector('.smart-search-wrapper');
@@ -456,55 +494,6 @@
         }
       }
     });
-
-    // 7. Voice Search Integration (Web Speech API)
-    const voiceBtn = document.getElementById('voiceSearchBtn');
-    if (voiceBtn) {
-      const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
-      if (SpeechRecognition) {
-        const recognition = new SpeechRecognition();
-        recognition.lang = 'en-IN';
-        recognition.interimResults = false;
-
-        voiceBtn.addEventListener('click', () => {
-          try {
-            recognition.start();
-          } catch (e) {
-            console.warn('[SmartSearch] Voice recognition start:', e);
-          }
-        });
-
-        recognition.onstart = () => {
-          voiceBtn.classList.add('listening-pulse');
-          searchInput.placeholder = 'Listening... Speak now 🎙️';
-        };
-
-        recognition.onresult = (e) => {
-          const transcript = e.results[0][0].transcript;
-          if (transcript) {
-            searchInput.value = transcript;
-            toggleClearBtn();
-            saveRecentSearch(transcript);
-            renderSuggestions(transcript);
-          }
-        };
-
-        recognition.onerror = (e) => {
-          console.warn('[SmartSearch] Voice recognition error:', e.error);
-          voiceBtn.classList.remove('listening-pulse');
-          searchInput.placeholder = 'Search pooja items...';
-        };
-
-        recognition.onend = () => {
-          voiceBtn.classList.remove('listening-pulse');
-          searchInput.placeholder = 'Search pooja items...';
-        };
-      } else {
-        voiceBtn.addEventListener('click', () => {
-          alert('Voice search is not supported by your browser. Please type to search.');
-        });
-      }
-    }
   }
 
   // Auto-init on DOMContentLoaded

@@ -1709,13 +1709,29 @@
  }
 
 /* =============================================================================
-   Smart Search Component Styles (Matches Reference Design)
+   Sub-Header Top Search Strip (Placed directly under Navbar)
    ============================================================================= */
+.top-search-strip {
+  width: 100%;
+  background: #fdfbf7;
+  border-bottom: 1px solid rgba(128, 0, 0, 0.08);
+  padding: 0.75rem 1rem;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.top-search-container {
+  width: 100%;
+  max-width: var(--max-width, 1200px);
+  display: flex;
+  justify-content: center;
+}
+
 .smart-search-wrapper {
   position: relative;
   width: 100%;
-  max-width: 440px;
-  margin: 0 0 0.5rem 0;
+  max-width: 620px;
   z-index: 90;
 }
 
@@ -1725,110 +1741,93 @@
   align-items: center;
   width: 100%;
   background: #ffffff;
+  border: 1.5px solid rgba(128, 0, 0, 0.18);
   border-radius: 50px;
-  padding: 4px 14px;
-  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.08), 0 1px 3px rgba(0, 0, 0, 0.05);
-  border: 1.5px solid rgba(128, 0, 0, 0.16);
+  box-shadow: 0 4px 18px rgba(0, 0, 0, 0.06);
+  padding: 0 14px;
   transition: all 0.25s ease;
 }
 
 .smart-search-box:focus-within {
-  border-color: #800000;
-  box-shadow: 0 8px 25px rgba(128, 0, 0, 0.18), 0 0 0 3px rgba(212, 175, 55, 0.22);
+  border-color: var(--color-accent, #d4af37);
+  box-shadow: 0 6px 24px rgba(128, 0, 0, 0.14), 0 0 0 3px rgba(212, 175, 55, 0.2);
 }
 
-.search-left-icon {
-  width: 18px;
-  height: 18px;
-  color: #800000;
-  opacity: 0.75;
-  margin-right: 10px;
+.search-input-icon {
+  width: 20px;
+  height: 20px;
+  color: var(--color-primary, #800000);
   flex-shrink: 0;
-  pointer-events: none;
+  margin-right: 8px;
 }
 
 .smart-search-input {
   flex: 1;
-  width: 100%;
   border: none;
-  outline: none;
   background: transparent;
-  font-size: 0.92rem;
+  padding: 0.7rem 0.4rem;
+  font-size: 0.94rem;
   font-family: inherit;
-  color: #1e293b;
-  padding: 8px 0;
+  color: #2c2c2c;
+  outline: none;
 }
 
-.search-actions-group {
+.search-right-actions {
   display: flex;
   align-items: center;
-  gap: 6px;
+  gap: 8px;
   flex-shrink: 0;
 }
 
 .search-clear-btn {
-  border: none;
-  background: #f1f5f9;
-  color: #64748b;
   width: 22px;
   height: 22px;
+  border: none;
+  background: #eeeeee;
+  color: #555;
   border-radius: 50%;
   display: none;
   align-items: center;
   justify-content: center;
-  font-size: 0.85rem;
+  font-size: 0.9rem;
   font-weight: 700;
   cursor: pointer;
   transition: all 0.2s ease;
 }
 
 .search-clear-btn:hover {
-  background: #e2e8f0;
-  color: #0f172a;
+  background: #dddddd;
+  color: #000;
 }
 
-.search-vertical-divider {
+.search-action-divider {
   width: 1px;
   height: 20px;
-  background: #e2e8f0;
-  margin: 0 4px;
+  background: #e0e0e0;
+  margin: 0 2px;
 }
 
-.search-mic-btn {
-  border: none;
+.search-action-btn {
   background: none;
-  color: #800000;
-  opacity: 0.75;
-  width: 28px;
-  height: 28px;
-  border-radius: 50%;
+  border: none;
+  color: #666666;
+  cursor: pointer;
   display: flex;
   align-items: center;
   justify-content: center;
-  cursor: pointer;
+  padding: 4px;
+  border-radius: 50%;
   transition: all 0.2s ease;
 }
 
-.search-mic-btn svg {
-  width: 18px;
-  height: 18px;
+.search-action-btn svg {
+  width: 20px;
+  height: 20px;
 }
 
-.search-mic-btn:hover {
-  opacity: 1;
-  background: rgba(128, 0, 0, 0.08);
-  transform: scale(1.08);
-}
-
-.search-mic-btn.listening-pulse {
-  color: #ef4444;
-  opacity: 1;
-  animation: micPulse 1.2s infinite alternate;
-}
-
-@keyframes micPulse {
-  from { transform: scale(1); box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.4); }
-  to { transform: scale(1.15); box-shadow: 0 0 0 8px rgba(239, 68, 68, 0); }
+.search-action-btn:hover {
+  color: var(--color-primary, #800000);
+  background: rgba(128, 0, 0, 0.06);
 }
 
 /* Clean Search Mode: Hide hero text/badge/buttons when user searches for a product */
