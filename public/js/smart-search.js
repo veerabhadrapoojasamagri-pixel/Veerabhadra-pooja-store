@@ -45,6 +45,7 @@
   let clearBtn = null;
   let dropdown = null;
   let kbdShortcut = null;
+  let searchIcon = null;
 
   // --- Initialize Engine ---
   document.addEventListener('DOMContentLoaded', () => {
@@ -230,8 +231,17 @@
     // Input Typing Handler (Debounced)
     searchInput.addEventListener('input', () => {
       toggleClearBtn();
+      
+      const query = searchInput.value.trim();
+      if (query.length > 0) {
+        searchBox.classList.add('is-loading');
+      } else {
+        searchBox.classList.remove('is-loading');
+      }
+
       clearTimeout(debounceTimer);
       debounceTimer = setTimeout(() => {
+        searchBox.classList.remove('is-loading');
         renderDropdown();
       }, DEBOUNCE_DELAY_MS);
     });
@@ -239,6 +249,11 @@
     // Focus & Click Handler
     searchInput.addEventListener('focus', () => {
       renderDropdown();
+      searchBox.classList.add('is-focused');
+    });
+
+    searchInput.addEventListener('blur', () => {
+      searchBox.classList.remove('is-focused');
     });
 
     // Clear Button Click Handler
@@ -285,7 +300,7 @@
 
   function closeDropdown() {
     if (dropdown) {
-      dropdown.style.display = 'none';
+      dropdown.classList.remove('show');
       if (searchInput) searchInput.setAttribute('aria-expanded', 'false');
     }
     activeIndex = -1;
@@ -314,13 +329,13 @@
       return;
     }
 
-    // STATE 4: Matching Live Suggestions (Amazon-like Horizontal List Format)
+    // STATE 4: Matching Live Suggestions
     let html = `
-      <div class="search-dropdown-header" style="background:#fdfbf7; padding:10px 16px; font-size:0.78rem; font-weight:700; text-transform:uppercase; letter-spacing:0.5px; color:#800000; border-bottom:1px solid #f0e6d6; display:flex; justify-content:space-between; align-items:center;">
+      <div class="search-dropdown-header">
         <span>Matching Products (${matches.length})</span>
-        <span style="font-weight:normal; font-size:0.72rem; color:#777;">Click item to view details</span>
+        <span class="search-dropdown-hint">Click item to view details</span>
       </div>
-      <ul class="search-results-list" role="listbox" id="smartSearchResultsList" style="list-style:none !important; margin:0 !important; padding:0 !important;">
+      <ul class="search-results-list" role="listbox" id="smartSearchResultsList">
     `;
 
     matches.forEach((item, index) => {
@@ -330,21 +345,21 @@
       const isRental = item.type === 'rental';
 
       html += `
-        <li class="search-suggestion-item amazon-item-row" id="searchOption-${index}" role="option" aria-selected="false" data-index="${index}" data-id="${item.id}" data-category="${item.category || ''}" data-name="${item.name.replace(/"/g, '&quot;')}" style="display:flex !important; align-items:center !important; justify-content:space-between !important; gap:14px !important; padding:12px 16px !important; border-bottom:1px solid #f0f0f0 !important; cursor:pointer !important; list-style:none !important; text-align:left !important; background:#ffffff !important; transition:background 0.15s ease !important;">
-          <div class="item-thumb-wrapper" style="width:52px !important; height:52px !important; min-width:52px !important; min-height:52px !important; max-width:52px !important; max-height:52px !important; border-radius:8px !important; overflow:hidden !important; background:#f9f9f9 !important; border:1px solid #eaeaea !important; flex-shrink:0 !important; display:flex !important; align-items:center !important; justify-content:center !important;">
-            <img src="${item.image || 'images/brass-diya.png'}" alt="${item.name}" class="item-thumb" style="width:100% !important; height:100% !important; object-fit:cover !important; border-radius:7px !important; display:block !important; margin:0 !important;">
+        <li class="search-suggestion-item amazon-item-row" id="searchOption-${index}" role="option" aria-selected="false" data-index="${index}" data-id="${item.id}" data-category="${item.category || ''}" data-name="${item.name.replace(/"/g, '&quot;')}">
+          <div class="item-thumb-wrapper">
+            <img src="${item.image || 'images/brass-diya.png'}" alt="${item.name}" class="item-thumb" loading="lazy">
           </div>
-          <div class="item-details" style="flex:1 !important; min-width:0 !important; text-align:left !important;">
-            <div class="item-name" style="font-weight:700 !important; font-size:0.92rem !important; color:#111111 !important; white-space:nowrap !important; overflow:hidden !important; text-overflow:ellipsis !important; margin:0 0 4px 0 !important; line-height:1.25 !important;">${highlightedName}</div>
-            <div class="item-meta" style="display:flex !important; align-items:center !important; flex-wrap:wrap !important; gap:6px !important;">
-              <span class="item-category-tag" style="font-size:0.72rem !important; color:#444444 !important; background:#f4f4f4 !important; font-weight:600 !important; padding:2px 8px !important; border-radius:10px !important; display:inline-block !important;">${categoryLabel}</span>
-              ${item.rating ? `<span class="item-rating-tag" style="font-size:0.72rem !important; color:#b45309 !important; background:#fef3c7 !important; font-weight:700 !important; padding:2px 8px !important; border-radius:10px !important; display:inline-flex !important; align-items:center !important; gap:2px !important;">★ ${item.rating}</span>` : ''}
-              ${isRental ? '<span class="item-rental-tag" style="font-size:0.72rem !important; color:#800000 !important; background:#fde8e8 !important; font-weight:700 !important; padding:2px 8px !important; border-radius:10px !important; display:inline-block !important;">Rental Setup</span>' : ''}
-              ${isOos ? '<span class="item-oos-tag" style="font-size:0.72rem !important; color:#d32f2f !important; background:#ffebee !important; font-weight:700 !important; padding:2px 8px !important; border-radius:10px !important; display:inline-block !important;">Out of Stock</span>' : ''}
+          <div class="item-details">
+            <div class="item-name" title="${item.name}">${highlightedName}</div>
+            <div class="item-meta">
+              <span class="item-category-tag">${categoryLabel}</span>
+              ${item.rating ? `<span class="item-rating-tag"><svg viewBox="0 0 24 24" fill="currentColor" width="10" height="10"><path d="M12 17.27L18.18 21l-1.64-7.03L22 9.24l-7.19-.61L12 2 9.19 8.63 2 9.24l5.46 4.73L5.82 21z"/></svg> ${item.rating}</span>` : ''}
+              ${isRental ? '<span class="item-rental-tag">Rental Setup</span>' : ''}
+              ${isOos ? '<span class="item-oos-tag">Out of Stock</span>' : ''}
             </div>
           </div>
-          <div class="item-action-col" style="display:flex !important; flex-direction:column !important; align-items:flex-end !important; justify-content:center !important; flex-shrink:0 !important;">
-            <span class="view-item-link" style="font-size:0.78rem !important; font-weight:700 !important; color:#d4af37 !important; display:inline-flex !important; align-items:center !important;">View &rarr;</span>
+          <div class="item-action-col">
+            <span class="view-item-link">View &rarr;</span>
           </div>
         </li>
       `;
@@ -352,7 +367,7 @@
 
     html += `</ul>`;
     dropdown.innerHTML = html;
-    dropdown.style.display = 'block';
+    dropdown.classList.add('show');
     searchInput.setAttribute('aria-expanded', 'true');
 
     bindItemClickEvents();
@@ -364,19 +379,20 @@
 
     if (recentSearches.length > 0) {
       html += `
-        <div class="search-dropdown-header" style="background:#fdfbf7; padding:8px 14px; font-size:0.78rem; font-weight:700; text-transform:uppercase; letter-spacing:0.5px; color:#800000; border-bottom:1px solid #f0e6d6; display:flex; justify-content:space-between; align-items:center;">
+        <div class="search-dropdown-header">
           <span>Recent Searches</span>
-          <button type="button" id="clearAllRecentBtn" style="background:none; border:none; color:#888; font-size:0.75rem; cursor:pointer; text-decoration:underline;">Clear All</button>
+          <button type="button" id="clearAllRecentBtn" class="search-clear-all-btn">Clear All</button>
         </div>
-        <ul style="list-style:none; margin:0; padding:0;">
+        <ul class="search-recent-list">
       `;
       recentSearches.forEach((term, idx) => {
         html += `
-          <li class="search-recent-item" data-term="${term.replace(/"/g, '&quot;')}" style="display:flex; align-items:center; justify-content:space-between; padding:9px 14px; border-bottom:1px solid #f5f5f5; cursor:pointer; font-size:0.88rem; color:#333;">
-            <span style="display:flex; align-items:center; gap:8px;">
-              <span style="opacity:0.5;">🕒</span> ${term}
+          <li class="search-recent-item" data-term="${term.replace(/"/g, '&quot;')}">
+            <span class="recent-term-label">
+              <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline></svg>
+              ${term}
             </span>
-            <button type="button" class="remove-recent-btn" data-term="${term.replace(/"/g, '&quot;')}" aria-label="Remove search" style="background:none; border:none; color:#aaa; font-size:1rem; cursor:pointer; padding:0 4px;">&times;</button>
+            <button type="button" class="remove-recent-btn" data-term="${term.replace(/"/g, '&quot;')}" aria-label="Remove search">&times;</button>
           </li>
         `;
       });
@@ -384,12 +400,12 @@
     }
 
     html += `
-      <div class="search-dropdown-header" style="background:#fdfbf7; padding:8px 14px; font-size:0.78rem; font-weight:700; text-transform:uppercase; letter-spacing:0.5px; color:#800000; border-bottom:1px solid #f0e6d6;">Popular Searches</div>
-      <div style="padding:10px 14px; display:flex; flex-wrap:wrap; gap:8px; background:#fff;">
+      <div class="search-dropdown-header">Popular Searches</div>
+      <div class="search-popular-chips-container">
     `;
     POPULAR_KEYWORDS.forEach(chip => {
       html += `
-        <button type="button" class="quick-chip" data-keyword="${chip.keyword}" style="background:#fcf9f2; border:1px solid #e0d0b0; border-radius:20px; padding:5px 12px; font-size:0.8rem; font-weight:600; color:#800000; cursor:pointer;">
+        <button type="button" class="quick-chip" data-keyword="${chip.keyword}">
           ${chip.label}
         </button>
       `;
@@ -397,7 +413,7 @@
     html += `</div>`;
 
     dropdown.innerHTML = html;
-    dropdown.style.display = 'block';
+    dropdown.classList.add('show');
     searchInput.setAttribute('aria-expanded', 'true');
 
     // Bind Clear All & Remove handlers
@@ -432,15 +448,15 @@
   // --- State 3: Render Zero Results Empty State ---
   function renderZeroResultsState(query) {
     let html = `
-      <div class="search-empty-state" style="text-align:center; padding:1.5rem 1rem; color:#666;">
-        <div style="font-size:2rem; margin-bottom:0.4rem;">🪔</div>
-        <p style="font-weight:700; color:#222; font-size:0.95rem; margin:0;">No products found for "${query}"</p>
-        <p style="font-size:0.82rem; color:#777; margin:4px 0 12px 0;">Try searching for popular items below:</p>
-        <div style="display:flex; flex-wrap:wrap; justify-content:center; gap:6px;">
+      <div class="search-empty-state">
+        <div class="empty-state-icon">🪔</div>
+        <p class="empty-state-title">No products found for "${query}"</p>
+        <p class="empty-state-subtitle">Try searching for popular items below:</p>
+        <div class="search-popular-chips-container empty-state-chips">
     `;
     POPULAR_KEYWORDS.slice(0, 4).forEach(chip => {
       html += `
-        <button type="button" class="quick-chip" data-keyword="${chip.keyword}" style="background:#fcf9f2; border:1px solid #e0d0b0; border-radius:20px; padding:4px 10px; font-size:0.78rem; font-weight:600; color:#800000; cursor:pointer;">
+        <button type="button" class="quick-chip" data-keyword="${chip.keyword}">
           ${chip.label}
         </button>
       `;
@@ -451,7 +467,7 @@
     `;
 
     dropdown.innerHTML = html;
-    dropdown.style.display = 'block';
+    dropdown.classList.add('show');
     searchInput.setAttribute('aria-expanded', 'true');
   }
 
@@ -502,7 +518,7 @@
         return;
       }
 
-      if (listItems.length === 0 || dropdown.style.display === 'none') return;
+      if (listItems.length === 0 || !dropdown.classList.contains('show')) return;
 
       if (e.key === 'ArrowDown') {
         e.preventDefault();
