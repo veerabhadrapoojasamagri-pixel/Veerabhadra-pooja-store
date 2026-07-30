@@ -982,12 +982,38 @@ function renderDashboard() {
   `).join('');
 }
 
+let productSearchQuery = '';
+
+function handleProductSearch() {
+  const input = document.getElementById('searchProductName');
+  if (input) {
+    productSearchQuery = input.value.trim().toLowerCase();
+  }
+  renderProducts();
+}
+
+function clearProductSearch() {
+  const input = document.getElementById('searchProductName');
+  if (input) {
+    input.value = '';
+    productSearchQuery = '';
+  }
+  renderProducts();
+}
+
 // 2. Render Products list tab
 function renderProducts() {
   const tableBody = document.getElementById('productsTableBody');
   if (!tableBody) return;
 
-  const products = items.filter(i => i.type === 'sale');
+  let products = items.filter(i => i.type === 'sale');
+
+  if (productSearchQuery) {
+    products = products.filter(p => 
+      p.name.toLowerCase().includes(productSearchQuery) || 
+      (p.category && p.category.toLowerCase().includes(productSearchQuery))
+    );
+  }
 
   if (products.length === 0) {
     tableBody.innerHTML = `<tr><td colspan="5" style="text-align:center; padding:2rem; color:var(--color-text-muted);">No products found.</td></tr>`;
@@ -1606,7 +1632,7 @@ const NotificationService = {
         return `📦 *Veerabhadra Pooja Store*\n\nHello ${customerName},\n\nYour order has been *packed* and is ready! ✅\n\n*Order ID:* ${orderId}\n\n*Items:*\n${productList}\n\nYou can collect your order from our store during business hours.\n\nThank you! 🙏`;
         
       case 'READY FOR PICKUP':
-        return `📍 *Veerabhadra Pooja Store*\n\nHello ${customerName},\n\nYour order is *ready for pickup!* 🎉\n\n*Order ID:* ${orderId}\n\n*Items:*\n${productList}\n\nPlease visit our store to collect your order.\n\n📍 Madhavi Nagar, Shanti Nagar Bus Stop, Hydershahkote, Ranga Reddy\n\nThank you! 🙏`;
+        return `📍 *Veerabhadra Pooja Store*\n\nHello ${customerName},\n\nYour order is *ready for pickup!* 🎉\n\n*Order ID:* ${orderId}\n\n*Items:*\n${productList}\n\nPlease visit our store to collect your order.\n\n📍 https://maps.app.goo.gl/vH5Zj1566uZ7MjFf6?g_st=ac\n\nThank you! 🙏`;
         
       case 'DELIVERED':
         return `✅ *Veerabhadra Pooja Store*\n\nHello ${customerName},\n\nYour order has been successfully *delivered!* 🎉\n\n*Order ID:* ${orderId}\n\n*Items:*\n${productList}\n\nThank you for shopping with Veerabhadra Pooja Store! 🙏\n\n⭐ *We value your feedback!* Please leave us a review on Google Maps:\n📍 ${GOOGLE_MAPS_REVIEW_URL}\n\nWe hope to serve you again soon! 🪔`;
@@ -2005,6 +2031,8 @@ async function confirmStatusUpdate() {
 window.setOrderFilter = setOrderFilter;
 window.handleOrderSearch = handleOrderSearch;
 window.clearOrderSearch = clearOrderSearch;
+window.handleProductSearch = handleProductSearch;
+window.clearProductSearch = clearProductSearch;
 window.handleOrdersPerPageChange = handleOrdersPerPageChange;
 window.changeOrderPage = changeOrderPage;
 window.viewOrderDetails = viewOrderDetails;

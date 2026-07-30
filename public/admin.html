@@ -205,6 +205,21 @@
             <button class="btn btn-primary btn-sm" onclick="openAddForm()">+ Add Product</button>
           </div>
           
+          <!-- Product Search -->
+          <div class="search-grid" style="margin-bottom: 15px; grid-template-columns: 1fr;">
+            <div class="search-input-wrapper">
+              <label for="searchProductName" class="search-label">Search Products</label>
+              <div style="display: flex; gap: 10px;">
+                <input type="text" id="searchProductName" class="form-input search-input" placeholder="e.g. Copper Kalash" onkeyup="if(event.key === 'Enter') handleProductSearch()" style="flex: 1;">
+                <button class="btn btn-primary btn-sm" onclick="handleProductSearch()" style="width: auto; padding: 0.5rem 1.5rem; display: flex; align-items: center; justify-content: center; gap: 8px;">
+                  <svg viewBox="0 0 24 24" width="16" height="16" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
+                  Search
+                </button>
+                <button class="btn btn-secondary btn-sm" onclick="clearProductSearch()" style="width: auto; padding: 0.5rem 1.5rem;">Clear</button>
+              </div>
+            </div>
+          </div>
+          
           <div class="table-wrapper">
             <table class="admin-table">
               <thead>
