@@ -337,6 +337,9 @@ let orderStatusChangeTarget = {
 
 // Initialize Page
 document.addEventListener('DOMContentLoaded', () => {
+  if (window.location.hash && window.location.hash.includes('access_token')) {
+    window.history.replaceState(null, null, window.location.pathname);
+  }
   initData();
   checkAuth();
   setupEventListeners();

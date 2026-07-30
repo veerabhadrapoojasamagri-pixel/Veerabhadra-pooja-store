@@ -235,8 +235,11 @@ async function handleGoogleLogin() {
 }
 
 
-// Auto-redirect if already logged in
+// Auto-redirect if already logged in & clean OAuth hash fragments
 window.addEventListener('DOMContentLoaded', async () => {
+  if (window.location.hash && window.location.hash.includes('access_token')) {
+    window.history.replaceState(null, null, window.location.pathname);
+  }
   if (typeof supabaseClient !== 'undefined' && supabaseClient.auth) {
     const { data: { session } } = await supabaseClient.auth.getSession();
     if (session) {
