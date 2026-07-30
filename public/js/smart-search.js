@@ -343,12 +343,8 @@
               ${isOos ? '<span class="item-oos-tag" style="font-size:0.72rem !important; color:#d32f2f !important; background:#ffebee !important; font-weight:700 !important; padding:2px 8px !important; border-radius:10px !important; display:inline-block !important;">Out of Stock</span>' : ''}
             </div>
           </div>
-          <div class="item-action-col" style="display:flex !important; flex-direction:column !important; align-items:flex-end !important; justify-content:center !important; flex-shrink:0 !important; min-width:85px !important;">
-            <div class="item-price" style="font-weight:800 !important; font-size:0.96rem !important; color:#800000 !important; white-space:nowrap !important;">
-              ₹${item.price}${isRental ? '<span style="font-size:0.7rem;font-weight:normal;color:#666;">/day</span>' : ''}
-            </div>
-            ${item.mrp && item.mrp > item.price ? `<div style="font-size:0.72rem; color:#888; text-decoration:line-through; font-weight:500;">₹${item.mrp}</div>` : ''}
-            <span class="view-item-link" style="font-size:0.75rem !important; font-weight:700 !important; color:#d4af37 !important; margin-top:2px !important; display:inline-flex !important; align-items:center !important;">View &rarr;</span>
+          <div class="item-action-col" style="display:flex !important; flex-direction:column !important; align-items:flex-end !important; justify-content:center !important; flex-shrink:0 !important;">
+            <span class="view-item-link" style="font-size:0.78rem !important; font-weight:700 !important; color:#d4af37 !important; display:inline-flex !important; align-items:center !important;">View &rarr;</span>
           </div>
         </li>
       `;
