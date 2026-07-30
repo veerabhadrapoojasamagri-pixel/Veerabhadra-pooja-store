@@ -196,7 +196,10 @@
       return;
     }
 
-    let html = `<div class="search-dropdown-header" style="background:#fcf9f2; padding:8px 14px; font-size:0.75rem; font-weight:700; text-transform:uppercase; letter-spacing:0.5px; color:#800000; border-bottom:1px solid #f0e6d6;">Matching Products (${matches.length})</div><ul class="search-results-list" role="listbox" style="list-style:none !important; margin:0 !important; padding:0 !important;">`;
+    let html = `<div class="search-dropdown-header" style="background:#fdfbf7; padding:10px 16px; font-size:0.78rem; font-weight:700; text-transform:uppercase; letter-spacing:0.5px; color:#800000; border-bottom:1px solid #f0e6d6; display:flex; justify-content:space-between; align-items:center;">
+      <span>Results for "${cleanQuery}" (${matches.length} found)</span>
+      <span style="font-weight:normal; font-size:0.72rem; color:#777;">Click item to view details</span>
+    </div><ul class="search-results-list" role="listbox" style="list-style:none !important; margin:0 !important; padding:0 !important;">`;
 
     matches.forEach((item, index) => {
       const categoryLabel = (item.category || 'Products').replace(/-/g, ' ').replace(/\b\w/g, c => c.toUpperCase());
@@ -205,20 +208,25 @@
       const isRental = item.type === 'rental';
 
       html += `
-        <li class="search-suggestion-item" role="option" data-index="${index}" data-id="${item.id}" data-category="${item.category || ''}" data-name="${item.name.replace(/"/g, '&quot;')}" style="display:flex !important; align-items:center !important; gap:12px !important; padding:10px 14px !important; border-bottom:1px solid #f5f5f5 !important; cursor:pointer !important; list-style:none !important; text-align:left !important; background:#ffffff;">
-          <div class="item-thumb-wrapper" style="width:44px !important; height:44px !important; min-width:44px !important; min-height:44px !important; max-width:44px !important; max-height:44px !important; border-radius:8px !important; overflow:hidden !important; background:#f5f5f5 !important; flex-shrink:0 !important;">
-            <img src="${item.image || 'images/brass-diya.png'}" alt="${item.name}" class="item-thumb" style="width:44px !important; height:44px !important; min-width:44px !important; min-height:44px !important; max-width:44px !important; max-height:44px !important; object-fit:cover !important; border-radius:8px !important; display:block !important; margin:0 !important;">
+        <li class="search-suggestion-item amazon-item-row" role="option" data-index="${index}" data-id="${item.id}" data-category="${item.category || ''}" data-name="${item.name.replace(/"/g, '&quot;')}" style="display:flex !important; align-items:center !important; justify-content:space-between !important; gap:14px !important; padding:12px 16px !important; border-bottom:1px solid #f0f0f0 !important; cursor:pointer !important; list-style:none !important; text-align:left !important; background:#ffffff !important; transition:background 0.15s ease !important;">
+          <div class="item-thumb-wrapper" style="width:56px !important; height:56px !important; min-width:56px !important; min-height:56px !important; max-width:56px !important; max-height:56px !important; border-radius:8px !important; overflow:hidden !important; background:#f9f9f9 !important; border:1px solid #eaeaea !important; flex-shrink:0 !important; display:flex !important; align-items:center !important; justify-content:center !important;">
+            <img src="${item.image || 'images/brass-diya.png'}" alt="${item.name}" class="item-thumb" style="width:100% !important; height:100% !important; object-fit:cover !important; border-radius:7px !important; display:block !important; margin:0 !important;">
           </div>
           <div class="item-details" style="flex:1 !important; min-width:0 !important; text-align:left !important;">
-            <div class="item-name" style="font-weight:600 !important; font-size:0.9rem !important; color:#222 !important; white-space:nowrap !important; overflow:hidden !important; text-overflow:ellipsis !important; margin:0 !important; line-height:1.3 !important;">${highlightedName}</div>
-            <div class="item-meta" style="display:flex !important; align-items:center !important; gap:6px !important; margin-top:3px !important;">
-              <span class="item-category-tag" style="font-size:0.7rem !important; color:#666 !important; background:#f0f0f0 !important; padding:2px 8px !important; border-radius:10px !important; display:inline-block !important;">${categoryLabel}</span>
-              ${isRental ? '<span class="item-rental-tag" style="font-size:0.7rem !important; color:#800000 !important; background:#fde8e8 !important; font-weight:700 !important; padding:2px 8px !important; border-radius:10px !important; display:inline-block !important;">Rental Setup</span>' : ''}
-              ${isOos ? '<span class="item-oos-tag" style="font-size:0.7rem !important; color:#d32f2f !important; background:#ffebee !important; font-weight:700 !important; padding:2px 8px !important; border-radius:10px !important; display:inline-block !important;">Out of Stock</span>' : ''}
+            <div class="item-name" style="font-weight:700 !important; font-size:0.94rem !important; color:#111111 !important; white-space:nowrap !important; overflow:hidden !important; text-overflow:ellipsis !important; margin:0 0 4px 0 !important; line-height:1.25 !important;">${highlightedName}</div>
+            <div class="item-meta" style="display:flex !important; align-items:center !important; flex-wrap:wrap !important; gap:6px !important;">
+              <span class="item-category-tag" style="font-size:0.72rem !important; color:#444444 !important; background:#f4f4f4 !important; font-weight:600 !important; padding:2px 8px !important; border-radius:10px !important; display:inline-block !important;">${categoryLabel}</span>
+              ${item.rating ? `<span class="item-rating-tag" style="font-size:0.72rem !important; color:#b45309 !important; background:#fef3c7 !important; font-weight:700 !important; padding:2px 8px !important; border-radius:10px !important; display:inline-flex !important; align-items:center !important; gap:2px !important;">★ ${item.rating}</span>` : ''}
+              ${isRental ? '<span class="item-rental-tag" style="font-size:0.72rem !important; color:#800000 !important; background:#fde8e8 !important; font-weight:700 !important; padding:2px 8px !important; border-radius:10px !important; display:inline-block !important;">Rental Setup</span>' : ''}
+              ${isOos ? '<span class="item-oos-tag" style="font-size:0.72rem !important; color:#d32f2f !important; background:#ffebee !important; font-weight:700 !important; padding:2px 8px !important; border-radius:10px !important; display:inline-block !important;">Out of Stock</span>' : ''}
             </div>
           </div>
-          <div class="item-price" style="font-weight:700 !important; font-size:0.92rem !important; color:#d4af37 !important; flex-shrink:0 !important; white-space:nowrap !important;">
-            ₹${item.price}${isRental ? '<span style="font-size:0.7rem;font-weight:normal;color:#666;">/day</span>' : ''}
+          <div class="item-action-col" style="display:flex !important; flex-direction:column !important; align-items:flex-end !important; justify-content:center !important; flex-shrink:0 !important; min-width:85px !important;">
+            <div class="item-price" style="font-weight:800 !important; font-size:1rem !important; color:#800000 !important; white-space:nowrap !important;">
+              ₹${item.price}${isRental ? '<span style="font-size:0.7rem;font-weight:normal;color:#666;">/day</span>' : ''}
+            </div>
+            ${item.mrp && item.mrp > item.price ? `<div style="font-size:0.72rem; color:#888; text-decoration:line-through; font-weight:500;">₹${item.mrp}</div>` : ''}
+            <span class="view-item-link" style="font-size:0.75rem !important; font-weight:700 !important; color:#d4af37 !important; margin-top:2px !important; display:inline-flex !important; align-items:center !important;">View &rarr;</span>
           </div>
         </li>
       `;

@@ -1778,14 +1778,19 @@
 }
 
 .hero-content.hero-content--searching .smart-search-wrapper {
-  max-width: 540px !important;
+  max-width: 580px !important;
   margin-bottom: 1.5rem !important;
   transition: all 0.25s ease;
 }
 
 .hero-content.hero-content--searching .smart-search-dropdown {
-  max-width: 540px !important;
+  max-width: 580px !important;
   box-shadow: 0 16px 40px rgba(0, 0, 0, 0.22), 0 4px 12px rgba(0, 0, 0, 0.08) !important;
+}
+
+.amazon-item-row:hover {
+  background: #fffcf4 !important;
+  border-left: 4px solid #800000 !important;
 }
 
 /* Floating Dropdown */
