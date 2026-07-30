@@ -1,6 +1,6 @@
 # ============================================
 # Robots.txt for Veerabhadra Pooja Store
-# https://divinepoojastore.in
+# https://veerabhadrapoojasamagri.in
 # ============================================
 
 User-agent: *
@@ -21,4 +21,4 @@ Disallow: /dashboard.html
 Disallow: /api/
 
 # Sitemap Location
-Sitemap: https://divinepoojastore.in/sitemap.xml
+Sitemap: https://veerabhadrapoojasamagri.in/sitemap.xml

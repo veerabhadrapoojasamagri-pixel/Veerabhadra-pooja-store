@@ -11,59 +11,59 @@
   
   <!-- Homepage -->
   <url>
-    <loc>https://divinepoojastore.in/</loc>
+    <loc>https://veerabhadrapoojasamagri.in/</loc>
     <lastmod>2026-07-30</lastmod>
     <changefreq>daily</changefreq>
     <priority>1.00</priority>
     <image:image>
-      <image:loc>https://divinepoojastore.in/images/hero.png</image:loc>
+      <image:loc>https://veerabhadrapoojasamagri.in/images/hero.png</image:loc>
       <image:title>Traditional Indian Pooja Setup &amp; Vratam Peta Setup Kit</image:title>
     </image:image>
     <image:image>
-      <image:loc>https://divinepoojastore.in/images/logo.jpg</image:loc>
+      <image:loc>https://veerabhadrapoojasamagri.in/images/logo.jpg</image:loc>
       <image:title>Veerabhadra Pooja Store Logo</image:title>
     </image:image>
   </url>
   
   <!-- Products Collection Page -->
   <url>
-    <loc>https://divinepoojastore.in/products</loc>
+    <loc>https://veerabhadrapoojasamagri.in/products</loc>
     <lastmod>2026-07-30</lastmod>
     <changefreq>daily</changefreq>
     <priority>0.90</priority>
     <image:image>
-      <image:loc>https://divinepoojastore.in/images/brass-diya.png</image:loc>
+      <image:loc>https://veerabhadrapoojasamagri.in/images/brass-diya.png</image:loc>
       <image:title>Handcrafted Brass Diya Pair</image:title>
     </image:image>
     <image:image>
-      <image:loc>https://divinepoojastore.in/images/copper-kalash.png</image:loc>
+      <image:loc>https://veerabhadrapoojasamagri.in/images/copper-kalash.png</image:loc>
       <image:title>Pure Copper Pooja Kalash</image:title>
     </image:image>
     <image:image>
-      <image:loc>https://divinepoojastore.in/images/photo-frame.png</image:loc>
+      <image:loc>https://veerabhadrapoojasamagri.in/images/photo-frame.png</image:loc>
       <image:title>Lord Ganesha Gold-Plated Frame</image:title>
     </image:image>
     <image:image>
-      <image:loc>https://divinepoojastore.in/images/pooja-kit.png</image:loc>
+      <image:loc>https://veerabhadrapoojasamagri.in/images/pooja-kit.png</image:loc>
       <image:title>Daily Pooja Essentials Kit</image:title>
     </image:image>
   </url>
 
   <!-- Rentals Page -->
   <url>
-    <loc>https://divinepoojastore.in/rental</loc>
+    <loc>https://veerabhadrapoojasamagri.in/rental</loc>
     <lastmod>2026-07-30</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.85</priority>
     <image:image>
-      <image:loc>https://divinepoojastore.in/images/vratam-peta.png</image:loc>
+      <image:loc>https://veerabhadrapoojasamagri.in/images/vratam-peta.png</image:loc>
       <image:title>Traditional Vratam Peta Rental Setup Kit</image:title>
     </image:image>
   </url>
 
   <!-- Contact Us Page -->
   <url>
-    <loc>https://divinepoojastore.in/contact</loc>
+    <loc>https://veerabhadrapoojasamagri.in/contact</loc>
     <lastmod>2026-07-30</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.70</priority>
@@ -71,7 +71,7 @@
 
   <!-- Customer Login Page -->
   <url>
-    <loc>https://divinepoojastore.in/login</loc>
+    <loc>https://veerabhadrapoojasamagri.in/login</loc>
     <lastmod>2026-07-30</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.50</priority>
