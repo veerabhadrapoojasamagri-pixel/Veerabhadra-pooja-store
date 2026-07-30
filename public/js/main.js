@@ -938,7 +938,7 @@ window.checkoutWhatsApp = () => {
         image: getFullImageUrl(item.image || 'images/brass-diya.png')
       })),
       totalAmount: total,
-      status: 'Draft'
+      status: 'Pending'
     });
 
     let message = `Hello! I would like to order the following items from your Pooja Store:\n\n`;
@@ -994,7 +994,7 @@ window.orderDirect = (name, price, customImage) => {
         address: customer.address,
         items: [{ name: name, price: price, quantity: 1, image: fullImg }],
         totalAmount: price,
-        status: 'Draft'
+        status: 'Pending'
       });
 
       let message = `Hello! I want to order the following item:\n\n`;
@@ -1065,7 +1065,7 @@ function initBookingForm() {
         items: [{ name: 'Vratam Peta Setup Kit', price: 299, quantity: duration }],
         totalAmount: totalAmount,
         paymentMethod: 'UPI/Cash',
-        status: 'Draft'
+        status: 'Pending'
       });
 
       let message = `Hello! I would like to book a *Vratam Peta Rental* package:\n\n`;
