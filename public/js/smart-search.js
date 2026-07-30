@@ -182,7 +182,7 @@
       return;
     }
 
-    let html = `<div class="search-dropdown-header">Matching Products (${matches.length})</div><ul class="search-results-list" role="listbox">`;
+    let html = `<div class="search-dropdown-header" style="background:#fcf9f2; padding:8px 14px; font-size:0.75rem; font-weight:700; text-transform:uppercase; letter-spacing:0.5px; color:#800000; border-bottom:1px solid #f0e6d6;">Matching Products (${matches.length})</div><ul class="search-results-list" role="listbox" style="list-style:none !important; margin:0 !important; padding:0 !important;">`;
 
     matches.forEach((item, index) => {
       const categoryLabel = (item.category || 'Products').replace(/-/g, ' ').replace(/\b\w/g, c => c.toUpperCase());
@@ -191,19 +191,19 @@
       const isRental = item.type === 'rental';
 
       html += `
-        <li class="search-suggestion-item" role="option" data-index="${index}" data-id="${item.id}" data-category="${item.category || ''}" data-name="${item.name.replace(/"/g, '&quot;')}">
-          <div class="item-thumb-wrapper">
-            <img src="${item.image || 'images/brass-diya.png'}" alt="${item.name}" class="item-thumb">
+        <li class="search-suggestion-item" role="option" data-index="${index}" data-id="${item.id}" data-category="${item.category || ''}" data-name="${item.name.replace(/"/g, '&quot;')}" style="display:flex !important; align-items:center !important; gap:12px !important; padding:10px 14px !important; border-bottom:1px solid #f5f5f5 !important; cursor:pointer !important; list-style:none !important; text-align:left !important; background:#ffffff;">
+          <div class="item-thumb-wrapper" style="width:44px !important; height:44px !important; min-width:44px !important; min-height:44px !important; max-width:44px !important; max-height:44px !important; border-radius:8px !important; overflow:hidden !important; background:#f5f5f5 !important; flex-shrink:0 !important;">
+            <img src="${item.image || 'images/brass-diya.png'}" alt="${item.name}" class="item-thumb" style="width:44px !important; height:44px !important; min-width:44px !important; min-height:44px !important; max-width:44px !important; max-height:44px !important; object-fit:cover !important; border-radius:8px !important; display:block !important; margin:0 !important;">
           </div>
-          <div class="item-details">
-            <div class="item-name">${highlightedName}</div>
-            <div class="item-meta">
-              <span class="item-category-tag">${categoryLabel}</span>
-              ${isRental ? '<span class="item-rental-tag">Rental Setup</span>' : ''}
-              ${isOos ? '<span class="item-oos-tag">Out of Stock</span>' : ''}
+          <div class="item-details" style="flex:1 !important; min-width:0 !important; text-align:left !important;">
+            <div class="item-name" style="font-weight:600 !important; font-size:0.9rem !important; color:#222 !important; white-space:nowrap !important; overflow:hidden !important; text-overflow:ellipsis !important; margin:0 !important; line-height:1.3 !important;">${highlightedName}</div>
+            <div class="item-meta" style="display:flex !important; align-items:center !important; gap:6px !important; margin-top:3px !important;">
+              <span class="item-category-tag" style="font-size:0.7rem !important; color:#666 !important; background:#f0f0f0 !important; padding:2px 8px !important; border-radius:10px !important; display:inline-block !important;">${categoryLabel}</span>
+              ${isRental ? '<span class="item-rental-tag" style="font-size:0.7rem !important; color:#800000 !important; background:#fde8e8 !important; font-weight:700 !important; padding:2px 8px !important; border-radius:10px !important; display:inline-block !important;">Rental Setup</span>' : ''}
+              ${isOos ? '<span class="item-oos-tag" style="font-size:0.7rem !important; color:#d32f2f !important; background:#ffebee !important; font-weight:700 !important; padding:2px 8px !important; border-radius:10px !important; display:inline-block !important;">Out of Stock</span>' : ''}
             </div>
           </div>
-          <div class="item-price">
+          <div class="item-price" style="font-weight:700 !important; font-size:0.92rem !important; color:#d4af37 !important; flex-shrink:0 !important; white-space:nowrap !important;">
             ₹${item.price}${isRental ? '<span style="font-size:0.7rem;font-weight:normal;color:#666;">/day</span>' : ''}
           </div>
         </li>
@@ -239,19 +239,19 @@
     }
 
     let html = `
-      <div class="search-dropdown-header" style="display: flex; justify-content: space-between; align-items: center;">
+      <div class="search-dropdown-header" style="background:#fcf9f2; padding:8px 14px; font-size:0.75rem; font-weight:700; text-transform:uppercase; letter-spacing:0.5px; color:#800000; border-bottom:1px solid #f0e6d6; display: flex; justify-content: space-between; align-items: center;">
         <span>Recent Searches</span>
-        <button type="button" class="clear-recent-btn" id="clearRecentBtn">Clear History</button>
+        <button type="button" class="clear-recent-btn" id="clearRecentBtn" style="background:none; border:none; color:#888; font-size:0.72rem; cursor:pointer; text-decoration:underline;">Clear History</button>
       </div>
-      <ul class="search-results-list" role="listbox">
+      <ul class="search-results-list" role="listbox" style="list-style:none !important; margin:0 !important; padding:0 !important;">
     `;
 
     recents.forEach((query, index) => {
       html += `
-        <li class="search-recent-item" role="option" data-index="${index}" data-query="${query.replace(/"/g, '&quot;')}">
-          <span class="recent-icon">🕒</span>
-          <span class="recent-text">${query}</span>
-          <span class="recent-arrow">↗</span>
+        <li class="search-recent-item" role="option" data-index="${index}" data-query="${query.replace(/"/g, '&quot;')}" style="display:flex !important; align-items:center !important; gap:10px !important; padding:10px 14px !important; border-bottom:1px solid #f5f5f5 !important; cursor:pointer !important; font-size:0.88rem !important; color:#444 !important; list-style:none !important; text-align:left !important; background:#ffffff;">
+          <span class="recent-icon" style="font-size:0.88rem; opacity:0.6;">🕒</span>
+          <span class="recent-text" style="flex:1;">${query}</span>
+          <span class="recent-arrow" style="font-size:0.8rem; opacity:0.4;">↗</span>
         </li>
       `;
     });

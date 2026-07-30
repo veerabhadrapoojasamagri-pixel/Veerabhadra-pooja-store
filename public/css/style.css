@@ -1771,18 +1771,20 @@
 
 /* Floating Dropdown */
 .smart-search-dropdown {
-  position: absolute;
-  top: calc(100% + 8px);
-  left: 0;
-  right: 0;
-  background: #ffffff;
-  border-radius: 16px;
-  box-shadow: 0 12px 36px rgba(0, 0, 0, 0.16), 0 2px 8px rgba(0, 0, 0, 0.08);
-  border: 1px solid rgba(128, 0, 0, 0.1);
-  overflow: hidden;
-  max-height: 380px;
-  overflow-y: auto;
-  z-index: 100;
+  position: absolute !important;
+  top: calc(100% + 6px) !important;
+  left: 0 !important;
+  width: 100% !important;
+  min-width: 320px !important;
+  max-width: 380px !important;
+  background: #ffffff !important;
+  border-radius: 12px !important;
+  box-shadow: 0 12px 36px rgba(0, 0, 0, 0.2), 0 2px 8px rgba(0, 0, 0, 0.08) !important;
+  border: 1px solid rgba(128, 0, 0, 0.15) !important;
+  overflow: hidden !important;
+  max-height: 340px !important;
+  overflow-y: auto !important;
+  z-index: 9999 !important;
   display: none;
   animation: searchFadeIn 0.2s ease-out;
 }
