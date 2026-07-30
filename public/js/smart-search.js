@@ -456,6 +456,55 @@
         }
       }
     });
+
+    // 7. Voice Search Integration (Web Speech API)
+    const voiceBtn = document.getElementById('voiceSearchBtn');
+    if (voiceBtn) {
+      const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+      if (SpeechRecognition) {
+        const recognition = new SpeechRecognition();
+        recognition.lang = 'en-IN';
+        recognition.interimResults = false;
+
+        voiceBtn.addEventListener('click', () => {
+          try {
+            recognition.start();
+          } catch (e) {
+            console.warn('[SmartSearch] Voice recognition start:', e);
+          }
+        });
+
+        recognition.onstart = () => {
+          voiceBtn.classList.add('listening-pulse');
+          searchInput.placeholder = 'Listening... Speak now 🎙️';
+        };
+
+        recognition.onresult = (e) => {
+          const transcript = e.results[0][0].transcript;
+          if (transcript) {
+            searchInput.value = transcript;
+            toggleClearBtn();
+            saveRecentSearch(transcript);
+            renderSuggestions(transcript);
+          }
+        };
+
+        recognition.onerror = (e) => {
+          console.warn('[SmartSearch] Voice recognition error:', e.error);
+          voiceBtn.classList.remove('listening-pulse');
+          searchInput.placeholder = 'Search pooja items...';
+        };
+
+        recognition.onend = () => {
+          voiceBtn.classList.remove('listening-pulse');
+          searchInput.placeholder = 'Search pooja items...';
+        };
+      } else {
+        voiceBtn.addEventListener('click', () => {
+          alert('Voice search is not supported by your browser. Please type to search.');
+        });
+      }
+    }
   }
 
   // Auto-init on DOMContentLoaded
