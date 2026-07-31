@@ -37,6 +37,7 @@ document.addEventListener('DOMContentLoaded', () => {
   updateActiveNavLink();
   checkAuthState();
   renderProductsPage(); // Renders admin-added products dynamically on products.html
+  renderHomeProducts(); // Renders featured products dynamically on index.html
   renderRatings();      // Injects ratings + variant dropdowns on rendered cards
 });
 
@@ -174,6 +175,33 @@ function renderProductsPage() {
   });
 
   container.innerHTML = html;
+
+  // Re-attach cart button event listeners after dynamic render
+  bindAddToCartButtons();
+}
+
+function renderHomeProducts() {
+  const container = document.getElementById('home-dynamic-products');
+  if (!container) return; // Only runs on index.html
+
+  let allItems = [];
+  try {
+    const saved = localStorage.getItem('pooja_store_items');
+    allItems = saved ? JSON.parse(saved) : [...DEFAULT_ITEMS];
+  } catch (e) {
+    allItems = [...DEFAULT_ITEMS];
+  }
+
+  // Filter only sale items and take the first 4 for featured section
+  const saleItems = allItems.filter(i => i.type === 'sale').slice(0, 4);
+
+  if (saleItems.length === 0) {
+    container.innerHTML = `<p style="text-align:center; width:100%; color:#666;">No featured products available.</p>`;
+    return;
+  }
+
+  const cardsHtml = saleItems.map(buildProductCardHtml).join('');
+  container.innerHTML = cardsHtml;
 
   // Re-attach cart button event listeners after dynamic render
   bindAddToCartButtons();

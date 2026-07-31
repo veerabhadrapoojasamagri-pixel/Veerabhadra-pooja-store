@@ -1016,10 +1016,44 @@ function renderProducts() {
   let products = items.filter(i => i.type === 'sale');
 
   if (productSearchQuery) {
-    products = products.filter(p => 
-      p.name.toLowerCase().includes(productSearchQuery) || 
-      (p.category && p.category.toLowerCase().includes(productSearchQuery))
-    );
+    const q = productSearchQuery.trim().toLowerCase();
+    const qSingular = q.endsWith('s') && q.length > 3 ? q.slice(0, -1) : q;
+    const queryWords = q.split(/\s+/).filter(w => w.length > 0);
+    
+    const scoredProducts = products.map(p => {
+      let score = 0;
+      const name = (p.name || '').toLowerCase();
+      const category = (p.category || '').toLowerCase().replace(/-/g, ' ');
+      const desc = (p.description || '').toLowerCase();
+      
+      // 1. Name match scoring
+      if (name === q || name === qSingular) score += 100;
+      else if (name.startsWith(q) || name.startsWith(qSingular)) score += 75;
+      else if (name.includes(` ${q}`) || name.includes(` ${qSingular}`)) score += 60;
+      else if (name.includes(q) || name.includes(qSingular)) score += 45;
+      
+      // 2. Category & Description match
+      if (category.includes(q) || category.includes(qSingular)) score += 35;
+      if (desc.includes(q) || desc.includes(qSingular)) score += 15;
+      
+      // 3. Fallback: Check individual word matches (fuzzy behavior)
+      if (score === 0 && queryWords.length > 0) {
+        let wordMatches = 0;
+        queryWords.forEach(w => {
+          if (name.includes(w) || category.includes(w) || desc.includes(w)) {
+            wordMatches++;
+          }
+        });
+        if (wordMatches === queryWords.length) score += 25; // All words found
+        else if (wordMatches > 0) score += (wordMatches * 5); // Partial words found
+      }
+
+      return { item: p, score };
+    });
+
+    products = scoredProducts.filter(res => res.score > 0)
+                             .sort((a, b) => b.score - a.score)
+                             .map(res => res.item);
   }
 
   if (products.length === 0) {
@@ -1077,14 +1111,59 @@ function renderProducts() {
 }
 
 // 3. Render Rentals list tab
-function renderRentals() {
+function renderRentals(searchTerm = '') {
   const tableBody = document.getElementById('rentalsTableBody');
   if (!tableBody) return;
 
-  const rentals = items.filter(i => i.type === 'rental');
+  let rentals = items.filter(i => i.type === 'rental');
+  
+  if (searchTerm) {
+    const term = searchTerm.toLowerCase().trim();
+    const searchWords = term.split(/\s+/);
+    
+    rentals = rentals.map(r => {
+      let score = 0;
+      const itemName = (r.name || '').toLowerCase();
+      
+      if (itemName === term) {
+        score += 100;
+      } else if (itemName.startsWith(term)) {
+        score += 75;
+      } else if (itemName.includes(term)) {
+        score += 50;
+      }
+      
+      const itemWords = itemName.split(/\s+/);
+      let allWordsMatched = true;
+      searchWords.forEach(word => {
+        if (itemWords.includes(word)) {
+          score += 20;
+        } else if (itemName.includes(word)) {
+          score += 5;
+        } else {
+          allWordsMatched = false;
+        }
+      });
+      
+      if (!allWordsMatched && score === 0) {
+        return { ...r, _score: -1 };
+      }
+      return { ...r, _score: score };
+    }).filter(r => r._score > -1);
+    
+    rentals.sort((a, b) => b._score - a._score);
+  }
 
   if (rentals.length === 0) {
-    tableBody.innerHTML = `<tr><td colspan="4" style="text-align:center; padding:2rem; color:var(--color-text-muted);">No rentals found.</td></tr>`;
+    if (searchTerm) {
+      tableBody.innerHTML = `<tr><td colspan="5" style="text-align:center; padding:3rem; color:var(--color-text-muted);">
+        <div style="font-size:3rem; margin-bottom:1rem;">🔍</div>
+        <div style="font-size:1.1rem; font-weight:500; color:var(--color-text-main);">No rentals found for "${searchTerm}"</div>
+        <div style="font-size:0.9rem; margin-top:0.5rem;">Try checking for typos or searching with different keywords.</div>
+      </td></tr>`;
+    } else {
+      tableBody.innerHTML = `<tr><td colspan="5" style="text-align:center; padding:2rem; color:var(--color-text-muted);">No rentals found.</td></tr>`;
+    }
     return;
   }
 
@@ -1493,6 +1572,24 @@ function deleteItem(id) {
   }
 }
 
+let rentalSearchQuery = '';
+
+function handleRentalSearch() {
+  const input = document.getElementById('searchRentalName');
+  if (input) {
+    rentalSearchQuery = input.value.trim().toLowerCase();
+  }
+  renderRentals(rentalSearchQuery);
+}
+
+function clearRentalSearch() {
+  const input = document.getElementById('searchRentalName');
+  if (input) {
+    input.value = '';
+    rentalSearchQuery = '';
+  }
+  renderRentals();
+}
 // Expose functions globally for layout onclick bindings
 window.switchTab = switchTab;
 window.editItem = editItem;
@@ -2049,6 +2146,8 @@ window.handleOrderSearch = handleOrderSearch;
 window.clearOrderSearch = clearOrderSearch;
 window.handleProductSearch = handleProductSearch;
 window.clearProductSearch = clearProductSearch;
+window.handleRentalSearch = handleRentalSearch;
+window.clearRentalSearch = clearRentalSearch;
 window.handleOrdersPerPageChange = handleOrdersPerPageChange;
 window.changeOrderPage = changeOrderPage;
 window.viewOrderDetails = viewOrderDetails;

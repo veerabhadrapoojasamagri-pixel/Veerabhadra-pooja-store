@@ -77,7 +77,10 @@ function initWhatsAppClient() {
       setTimeout(initWhatsAppClient, 10000);
     });
 
-    waClient.initialize();
+    waClient.initialize().catch(err => {
+      console.error('[WhatsApp] Failed to start client (async):', err.message);
+      waInitializing = false;
+    });
     console.log('[WhatsApp] Initializing client...');
   } catch (err) {
     console.error('[WhatsApp] Failed to start client:', err.message);
@@ -338,7 +341,50 @@ app.post('/api/send-whatsapp', async (req, res) => {
   let cleanPhone = to.replace(/\D/g, '');
   if (cleanPhone.length === 10) cleanPhone = '91' + cleanPhone;
 
-  // ── Option 1: Green API — FREE (500 msgs/month, no credit card) ──────────
+  // ── Option 1: Official Meta WhatsApp Cloud API ───────────────────────────
+  const META_TOKEN = process.env.META_WHATSAPP_TOKEN;
+  const META_PHONE_ID = process.env.META_PHONE_NUMBER_ID;
+  if (META_TOKEN && META_PHONE_ID) {
+    try {
+      const https = require('https');
+      const postData = JSON.stringify({
+        messaging_product: 'whatsapp',
+        to: cleanPhone,
+        type: 'text',
+        text: { body: message }
+      });
+      const options = {
+        hostname: 'graph.facebook.com',
+        path: `/v19.0/${META_PHONE_ID}/messages`,
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${META_TOKEN}`,
+          'Content-Type': 'application/json',
+          'Content-Length': Buffer.byteLength(postData)
+        }
+      };
+      const result = await new Promise((resolve, reject) => {
+        const r2 = https.request(options, (r) => {
+          let data = '';
+          r.on('data', chunk => data += chunk);
+          r.on('end', () => resolve({ status: r.statusCode, body: data }));
+        });
+        r2.on('error', reject);
+        r2.write(postData);
+        r2.end();
+      });
+      const body = JSON.parse(result.body);
+      if (body.messages && body.messages[0]) {
+        console.log(`[Meta API] ✅ Sent to +${cleanPhone}`);
+        return res.json({ success: true, to: `+${cleanPhone}`, provider: 'meta' });
+      }
+      throw new Error(body.error?.message || JSON.stringify(body));
+    } catch (err) {
+      console.error('[Meta API] Send failed, falling back:', err.message);
+    }
+  }
+
+  // ── Option 2: Green API — FREE (500 msgs/month, no credit card) ──────────
   const GREEN_ID    = process.env.GREEN_API_ID;
   const GREEN_TOKEN = process.env.GREEN_API_TOKEN;
   if (GREEN_ID && GREEN_TOKEN) {
