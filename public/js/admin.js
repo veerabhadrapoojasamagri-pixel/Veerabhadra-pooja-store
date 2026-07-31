@@ -355,19 +355,20 @@ document.addEventListener('DOMContentLoaded', () => {
 });
 
 
-// Load items from LocalStorage and orders from Supabase cloud database
+// Load items from JSON API and orders from Supabase cloud database
 async function initData() {
-  const stored = localStorage.getItem('pooja_store_items');
-  if (stored) {
-    try {
-      items = JSON.parse(stored);
-    } catch (e) {
+  try {
+    const res = await fetch('/api/products');
+    const fetchedItems = await res.json();
+    if (fetchedItems && fetchedItems.length > 0) {
+      items = fetchedItems;
+    } else {
       items = [...DEFAULT_ITEMS];
       saveData();
     }
-  } else {
+  } catch (err) {
+    console.error('Error fetching products API:', err);
     items = [...DEFAULT_ITEMS];
-    saveData();
   }
 
   // Load orders from Supabase
@@ -405,8 +406,17 @@ async function initData() {
   renderDashboard();
 }
 
-function saveData() {
-  localStorage.setItem('pooja_store_items', JSON.stringify(items));
+async function saveData() {
+  localStorage.setItem('pooja_store_items', JSON.stringify(items)); // Keep local fallback
+  try {
+    await fetch('/api/products', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(items)
+    });
+  } catch (err) {
+    console.error('Error saving products API:', err);
+  }
 }
 
 async function saveOrdersToServer(order) {

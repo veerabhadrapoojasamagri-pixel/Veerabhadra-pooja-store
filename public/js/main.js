@@ -28,14 +28,30 @@ const DEFAULT_ITEMS = [
 // Cart State Management
 let cart = [];
 let isLoggedIn = false;
+let globalProducts = [...DEFAULT_ITEMS];
+
+async function fetchProducts() {
+  try {
+    const res = await fetch('/api/products');
+    const fetched = await res.json();
+    if (fetched && fetched.length > 0) {
+      globalProducts = fetched;
+    }
+  } catch(e) {
+    console.error('Failed to load products from server:', e);
+  }
+}
 
 // Initialize Page
-document.addEventListener('DOMContentLoaded', () => {
+document.addEventListener('DOMContentLoaded', async () => {
   initMobileMenu();
   initCart();
   initBookingForm();
   updateActiveNavLink();
   checkAuthState();
+  
+  await fetchProducts(); // Fetch globally synced inventory
+  
   renderProductsPage(); // Renders admin-added products dynamically on products.html
   renderHomeProducts(); // Renders featured products dynamically on index.html
   renderRatings();      // Injects ratings + variant dropdowns on rendered cards
@@ -115,14 +131,8 @@ function renderProductsPage() {
   const container = document.getElementById('products-dynamic-container');
   if (!container) return; // Only runs on products.html
 
-  // Load items from localStorage or fall back to defaults
-  let allItems = [];
-  try {
-    const saved = localStorage.getItem('pooja_store_items');
-    allItems = saved ? JSON.parse(saved) : [...DEFAULT_ITEMS];
-  } catch (e) {
-    allItems = [...DEFAULT_ITEMS];
-  }
+  // Load items from global synced inventory
+  let allItems = globalProducts;
 
   // Filter only sale items (not rentals)
   const saleItems = allItems.filter(i => i.type === 'sale');
@@ -184,13 +194,7 @@ function renderHomeProducts() {
   const container = document.getElementById('home-dynamic-products');
   if (!container) return; // Only runs on index.html
 
-  let allItems = [];
-  try {
-    const saved = localStorage.getItem('pooja_store_items');
-    allItems = saved ? JSON.parse(saved) : [...DEFAULT_ITEMS];
-  } catch (e) {
-    allItems = [...DEFAULT_ITEMS];
-  }
+  let allItems = globalProducts;
 
   // Filter only sale items and take the first 4 for featured section
   const saleItems = allItems.filter(i => i.type === 'sale').slice(0, 4);
@@ -209,17 +213,7 @@ function renderHomeProducts() {
 
 // Function to inject star ratings dynamically under product names
 function renderRatings() {
-  let itemsList = [];
-  try {
-    const saved = localStorage.getItem('pooja_store_items');
-    if (saved) {
-      itemsList = JSON.parse(saved);
-    } else {
-      itemsList = [...DEFAULT_ITEMS];
-    }
-  } catch (e) {
-    itemsList = [...DEFAULT_ITEMS];
-  }
+  let itemsList = globalProducts;
 
   function getStarsHtml(rating) {
     const fullStars = Math.floor(rating);
@@ -1008,7 +1002,7 @@ window.orderDirect = (name, price, customImage) => {
   // Find matching product image from stored items / DEFAULT_ITEMS
   let matchedImg = customImage || '';
   if (!matchedImg) {
-    const allProducts = JSON.parse(localStorage.getItem('pooja_admin_products') || '[]').concat(DEFAULT_ITEMS);
+    const allProducts = globalProducts;
     const found = allProducts.find(p => p.name === name || name.startsWith(p.name));
     if (found && found.image) matchedImg = found.image;
   }
