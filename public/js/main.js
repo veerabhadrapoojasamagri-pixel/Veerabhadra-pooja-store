@@ -32,13 +32,19 @@ let globalProducts = [...DEFAULT_ITEMS];
 
 async function fetchProducts() {
   try {
-    const res = await fetch('/api/products');
-    const fetched = await res.json();
-    if (fetched && fetched.length > 0) {
-      globalProducts = fetched;
+    if (typeof supabaseClient !== 'undefined') {
+      const { data, error } = await supabaseClient
+        .from('orders')
+        .select('items')
+        .eq('id', '00000000-0000-0000-0000-000000000000')
+        .single();
+      
+      if (!error && data && data.items && data.items.length > 0) {
+        globalProducts = data.items;
+      }
     }
   } catch(e) {
-    console.error('Failed to load products from server:', e);
+    console.error('Failed to load products from Supabase:', e);
   }
 }
 

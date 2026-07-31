@@ -146,38 +146,7 @@ if (cloudinaryConfigured) {
   upload = multer({ storage: localStorage, limits: { fileSize: 5 * 1024 * 1024 } });
 }
 
-// ─── Products API (JSON Storage) ──────────────────────────────────────────────────────────
-const productsFile = path.join(__dirname, 'data', 'products.json');
-
-// Ensure data directory exists
-if (!fs.existsSync(path.join(__dirname, 'data'))) {
-  fs.mkdirSync(path.join(__dirname, 'data'), { recursive: true });
-}
-
-app.get('/api/products', (req, res) => {
-  if (fs.existsSync(productsFile)) {
-    try {
-      const data = fs.readFileSync(productsFile, 'utf8');
-      return res.json(JSON.parse(data));
-    } catch (err) {
-      console.error('Error reading products.json:', err);
-      return res.status(500).json({ error: 'Failed to read products' });
-    }
-  }
-  // Return empty array (client side handles DEFAULT_ITEMS fallback)
-  res.json([]);
-});
-
-app.post('/api/products', (req, res) => {
-  try {
-    const products = req.body;
-    fs.writeFileSync(productsFile, JSON.stringify(products, null, 2), 'utf8');
-    res.json({ success: true });
-  } catch (err) {
-    console.error('Error writing products.json:', err);
-    res.status(500).json({ error: 'Failed to save products' });
-  }
-});
+// ─── Supabase manages products directly from client-side now ──────────────────────────
 
 // Image Upload Endpoint
 app.post('/api/upload', upload.single('image'), (req, res) => {
