@@ -545,15 +545,11 @@ app.get('/dashboard.html', (req, res) => {
   res.redirect(301, '/dashboard');
 });
 
-// Serve assets (CSS, JS, Images) from the public directory with Browser Caching (Core Web Vitals Optimization)
+// Serve assets (CSS, JS, Images) from the public directory
 app.use(express.static(path.join(__dirname, 'public'), {
-  maxAge: '7d',
   setHeaders: (res, filePath) => {
-    if (filePath.endsWith('.html')) {
-      res.setHeader('Cache-Control', 'public, max-age=0, must-revalidate');
-    } else if (filePath.endsWith('.jpg') || filePath.endsWith('.png') || filePath.endsWith('.webp') || filePath.endsWith('.ico') || filePath.endsWith('.css') || filePath.endsWith('.js')) {
-      res.setHeader('Cache-Control', 'public, max-age=604800, immutable');
-    }
+    // Disable caching to ensure updates are visible immediately
+    res.setHeader('Cache-Control', 'public, max-age=0, must-revalidate');
   }
 }));
 
