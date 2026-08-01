@@ -1981,10 +1981,6 @@ function renderOrders() {
             <button class="action-btn action-btn-edit" onclick="viewOrderDetails('${order.id}')" title="View Order Details">👁️</button>
             <select class="table-status-select" onchange="promptStatusChange('${order.id}', this.value); this.value='';" title="Edit Status">
               <option value="" disabled selected>Status...</option>
-              <option value="Pending">Pending</option>
-              <option value="Confirmed">Confirmed</option>
-              <option value="Preparing">Preparing</option>
-              <option value="Packed">Packed</option>
               <option value="Ready for Pickup">Ready for Pickup</option>
               <option value="Delivered">Delivered</option>
               <option value="Cancelled">Cancelled</option>
