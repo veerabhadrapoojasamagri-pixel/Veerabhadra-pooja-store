@@ -1436,45 +1436,6 @@ async function handleFormSubmit(e) {
     imageUrl = previewImg.src;
   }
 
-  // Handle file upload from PC
-  if (fileInput && fileInput.files && fileInput.files.length > 0) {
-    const file = fileInput.files[0];
-
-    // Read file as Base64 Data URL first to guarantee image display
-    const base64Url = await new Promise((resolve) => {
-      const reader = new FileReader();
-      reader.onload = (evt) => resolve(evt.target ? evt.target.result : null);
-      reader.onerror = () => resolve(null);
-      reader.readAsDataURL(file);
-    });
-
-    if (base64Url) {
-      imageUrl = base64Url;
-    }
-
-    showToast('Processing uploaded image...');
-
-    try {
-      const formData = new FormData();
-      formData.append('image', file);
-
-      const response = await fetch('/api/upload', {
-        method: 'POST',
-        body: formData
-      });
-
-      if (response.ok) {
-        const result = await response.json();
-        if (result && result.imageUrl) {
-          imageUrl = result.imageUrl; // Use server URL if returned
-        }
-        showToast('Image uploaded successfully!');
-      }
-    } catch (err) {
-      console.warn('Server upload endpoint offline, using base64 image encoding:', err);
-    }
-  }
-
 
   let price, mrp, deposit, height = null, width = null;
   let variants = [];
@@ -1674,12 +1635,43 @@ function initUploadZone() {
       // Clear url input since local file is selected
       urlInput.value = '';
 
-      // Preview setup
+      // Preview setup and client-side compression
       const reader = new FileReader();
       reader.onload = (e) => {
-        const sizeKB = Math.round(file.size / 1024);
-        const sizeStr = sizeKB > 1024 ? (sizeKB / 1024).toFixed(1) + ' MB' : sizeKB + ' KB';
-        showPreview(e.target.result, file.name, sizeStr);
+        const img = new Image();
+        img.onload = () => {
+          const canvas = document.createElement('canvas');
+          const MAX_WIDTH = 600;
+          const MAX_HEIGHT = 600;
+          let width = img.width;
+          let height = img.height;
+
+          if (width > height) {
+            if (width > MAX_WIDTH) {
+              height *= MAX_WIDTH / width;
+              width = MAX_WIDTH;
+            }
+          } else {
+            if (height > MAX_HEIGHT) {
+              width *= MAX_HEIGHT / height;
+              height = MAX_HEIGHT;
+            }
+          }
+          canvas.width = width;
+          canvas.height = height;
+          const ctx = canvas.getContext('2d');
+          ctx.drawImage(img, 0, 0, width, height);
+          
+          // Compress to JPEG with 0.7 quality
+          const compressedDataUrl = canvas.toDataURL('image/jpeg', 0.7);
+          
+          // Approximate base64 size to KB
+          const sizeKB = Math.round(compressedDataUrl.length / 1333); 
+          const sizeStr = sizeKB + ' KB (Compressed)';
+          
+          showPreview(compressedDataUrl, file.name, sizeStr);
+        };
+        img.src = e.target.result;
       };
       reader.readAsDataURL(file);
     }
