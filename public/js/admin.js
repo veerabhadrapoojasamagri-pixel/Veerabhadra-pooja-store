@@ -410,6 +410,7 @@ document.addEventListener('DOMContentLoaded', () => {
   }
   initData();
   initCategories();
+  loadDraft();
   checkAuth();
   setupEventListeners();
   initUploadZone();
@@ -932,9 +933,13 @@ function setupEventListeners() {
     typeSelect.addEventListener('change', toggleFormFields);
   }
 
-  // Item form submit
+  // Item form submit and draft saving
   const itemForm = document.getElementById('itemForm');
-  if (itemForm) itemForm.addEventListener('submit', handleFormSubmit);
+  if (itemForm) {
+    itemForm.addEventListener('submit', handleFormSubmit);
+    itemForm.addEventListener('input', saveDraft);
+    itemForm.addEventListener('change', saveDraft);
+  }
 
   // Mobile Menu toggle interactions
   const menuBtn = document.getElementById('mobileMenuToggle');
@@ -1394,6 +1399,60 @@ async function notifyWaitingCustomersForStock(item) {
 }
 
 // Form CRUD Operations
+function saveDraft() {
+  const draft = {
+    itemId: document.getElementById('itemId').value,
+    itemName: document.getElementById('itemName').value,
+    itemCategory: document.getElementById('itemCategory').value,
+    itemImageUrl: document.getElementById('itemImageUrl').value,
+    itemType: document.getElementById('itemType').value,
+    itemDescription: document.getElementById('itemDescription').value,
+    itemMrp: document.getElementById('itemMrp').value,
+    itemPrice: document.getElementById('itemPrice').value,
+    rentalPrice: document.getElementById('rentalPrice').value,
+    rentalDeposit: document.getElementById('rentalDeposit').value,
+    hasVariants: document.getElementById('hasVariants').checked
+  };
+  
+  const heightInput = document.getElementById('rentalHeight');
+  const widthInput = document.getElementById('rentalWidth');
+  if (heightInput) draft.rentalHeight = heightInput.value;
+  if (widthInput) draft.rentalWidth = widthInput.value;
+  
+  localStorage.setItem('pooja_draft_item', JSON.stringify(draft));
+}
+
+function loadDraft() {
+  const draftStr = localStorage.getItem('pooja_draft_item');
+  if (!draftStr) return;
+  
+  try {
+    const draft = JSON.parse(draftStr);
+    
+    document.getElementById('itemId').value = draft.itemId || '';
+    document.getElementById('itemName').value = draft.itemName || '';
+    document.getElementById('itemCategory').value = draft.itemCategory || '';
+    document.getElementById('itemImageUrl').value = draft.itemImageUrl || '';
+    document.getElementById('itemType').value = draft.itemType || 'sale';
+    document.getElementById('itemDescription').value = draft.itemDescription || '';
+    document.getElementById('itemMrp').value = draft.itemMrp || '';
+    document.getElementById('itemPrice').value = draft.itemPrice || '';
+    document.getElementById('rentalPrice').value = draft.rentalPrice || '';
+    document.getElementById('rentalDeposit').value = draft.rentalDeposit || '';
+    
+    document.getElementById('hasVariants').checked = draft.hasVariants || false;
+    
+    const heightInput = document.getElementById('rentalHeight');
+    const widthInput = document.getElementById('rentalWidth');
+    if (heightInput && draft.rentalHeight !== undefined) heightInput.value = draft.rentalHeight;
+    if (widthInput && draft.rentalWidth !== undefined) widthInput.value = draft.rentalWidth;
+    
+    toggleFormFields();
+  } catch (e) {
+    console.error("Failed to load draft", e);
+  }
+}
+
 function clearForm() {
   document.getElementById('itemId').value = '';
   document.getElementById('itemName').value = '';
@@ -1407,6 +1466,7 @@ function clearForm() {
   const widthInput = document.getElementById('rentalWidth');
   if (heightInput) heightInput.value = '';
   if (widthInput) widthInput.value = '';
+  localStorage.removeItem('pooja_draft_item');
 
   document.getElementById('itemDescription').value = '';
   document.getElementById('itemImageUrl').value = '';
