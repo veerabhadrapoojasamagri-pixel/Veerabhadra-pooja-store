@@ -1412,7 +1412,6 @@ async function handleFormSubmit(e) {
   const category = document.getElementById('itemCategory').value;
   const fileInput = document.getElementById('itemImageFile');
   let imageUrl = document.getElementById('itemImageUrl').value.trim();
-  const type = document.getElementById('itemType').value;
   const description = document.getElementById('itemDescription').value.trim();
 
   // Check dropzone preview element for uploaded/selected image data
