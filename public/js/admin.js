@@ -25,6 +25,7 @@ function initCategories() {
     poojaCategories = [...defaultCategories];
   }
   renderCategoryDatalist();
+  renderCategoriesTab();
 }
 
 function renderCategoryDatalist() {
@@ -49,8 +50,61 @@ function deleteCurrentCategory() {
     poojaCategories = poojaCategories.filter(c => c.toLowerCase() !== cat.toLowerCase());
     localStorage.setItem('pooja_custom_categories', JSON.stringify(poojaCategories));
     renderCategoryDatalist();
+    renderCategoriesTab();
     input.value = '';
     showToast(`Removed "${cat}" from suggestions.`);
+  }
+}
+
+function renderCategoriesTab() {
+  const tbody = document.getElementById('categoriesTableBody');
+  if (!tbody) return;
+  tbody.innerHTML = '';
+  if (poojaCategories.length === 0) {
+    tbody.innerHTML = `<tr><td colspan="2" style="text-align: center; color: var(--color-text-muted); padding: 2rem;">No categories added yet.</td></tr>`;
+    return;
+  }
+  poojaCategories.forEach(cat => {
+    const tr = document.createElement('tr');
+    tr.innerHTML = `
+      <td style="font-weight: 500;">${cat}</td>
+      <td style="text-align: right;">
+        <button class="btn btn-outline btn-sm" style="color: var(--color-danger); border-color: var(--color-danger);" onclick="deleteCategoryFromTab('${cat.replace(/'/g, "\\'")}')">
+          <svg viewBox="0 0 24 24" width="16" height="16" stroke="currentColor" stroke-width="2" fill="none"><path d="M3 6h18M19 6v14a2 2 0 01-2 2H7a2 2 0 01-2-2V6m3 0V4a2 2 0 012-2h4a2 2 0 012 2v2"></path></svg>
+          Delete
+        </button>
+      </td>
+    `;
+    tbody.appendChild(tr);
+  });
+}
+
+function addCategoryFromTab() {
+  const input = document.getElementById('newCategoryInput');
+  const cat = input.value.trim();
+  if (!cat) {
+    showToast('Please enter a category name.', 'error');
+    return;
+  }
+  if (poojaCategories.some(c => c.toLowerCase() === cat.toLowerCase())) {
+    showToast('This category already exists.', 'error');
+    return;
+  }
+  poojaCategories.push(cat);
+  localStorage.setItem('pooja_custom_categories', JSON.stringify(poojaCategories));
+  renderCategoryDatalist();
+  renderCategoriesTab();
+  input.value = '';
+  showToast(`Category "${cat}" added successfully.`);
+}
+
+function deleteCategoryFromTab(cat) {
+  if (confirm(`Are you sure you want to remove "${cat}"?`)) {
+    poojaCategories = poojaCategories.filter(c => c.toLowerCase() !== cat.toLowerCase());
+    localStorage.setItem('pooja_custom_categories', JSON.stringify(poojaCategories));
+    renderCategoryDatalist();
+    renderCategoriesTab();
+    showToast(`Category removed.`);
   }
 }
 
