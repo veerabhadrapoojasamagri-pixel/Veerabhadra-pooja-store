@@ -1,29 +1,7 @@
 // Pooja Store - Main JS Configuration & Interactive Features
 
 const WHATSAPP_PHONE = '918143242659'; // Store Owner WhatsApp Number (with country code, no + or spaces)
-const DEFAULT_ITEMS = [
-  { id: 'brass-diya-pair', name: 'Handcrafted Brass Diya (Pair)', category: 'brass-items', mrp: 399, price: 249, image: 'images/brass-diya.png', type: 'sale', rating: 4.8 },
-  { id: 'brass-pooja-bell', name: 'Ornate Brass Pooja Handbell', category: 'brass-items', mrp: 299, price: 179, image: 'images/brass-diya.png', type: 'sale', rating: 4.7 },
-  { id: 'brass-aarti-plate', name: 'Engraved Brass Aarti Plate', category: 'brass-items', mrp: 449, price: 299, image: 'images/brass-diya.png', type: 'sale', rating: 4.8 },
-  { id: 'copper-kalash-pooja', name: 'Pure Copper Pooja Kalash', category: 'copper-items', mrp: 499, price: 349, image: 'images/copper-kalash.png', type: 'sale', rating: 4.9 },
-  { id: 'copper-panchapatra-pali', name: 'Copper Panchapatra & Pali Set', category: 'copper-items', mrp: 299, price: 199, image: 'images/copper-kalash.png', type: 'sale', rating: 4.6 },
-  { id: 'copper-pooja-lota', name: 'Traditional Copper Pooja Lota', category: 'copper-items', mrp: 399, price: 279, image: 'images/copper-kalash.png', type: 'sale', rating: 4.7 },
-  { id: 'ganesha-gold-frame', name: 'Lord Ganesha Gold-Plated Frame', category: 'photo-frames', mrp: 299, price: 199, image: 'images/photo-frame.png', type: 'sale', rating: 4.8 },
-  { id: 'lakshmi-gold-frame', name: 'Goddess Lakshmi Gold-Plated Frame', category: 'photo-frames', mrp: 299, price: 199, image: 'images/photo-frame.png', type: 'sale', rating: 4.9 },
-  { id: 'radha-krishna-frame', name: 'Radha Krishna Wooden Altar Frame', category: 'photo-frames', mrp: 349, price: 249, image: 'images/photo-frame.png', type: 'sale', rating: 4.7 },
-  { id: 'daily-pooja-kit', name: 'Daily Pooja Essentials Kit', category: 'daily-essentials', mrp: 249, price: 149, image: 'images/pooja-kit.png', type: 'sale', rating: 4.8 },
-  { id: 'premium-sandalwood-paste', name: 'Premium Sandalwood Paste (Chandanam)', category: 'daily-essentials', mrp: 149, price: 99, image: 'images/pooja-kit.png', type: 'sale', rating: 4.7, variants: [
-    { name: '100g Cup', mrp: 149, price: 99 },
-    { name: '200g Cup', mrp: 279, price: 189 },
-    { name: '500g Jar', mrp: 599, price: 399 }
-  ] },
-  { id: 'organic-camphor-tablets', name: 'Organic Camphor Tablets (100g)', category: 'daily-essentials', mrp: 119, price: 79, image: 'images/pooja-kit.png', type: 'sale', rating: 4.8, variants: [
-    { name: '100g Box', mrp: 119, price: 79 },
-    { name: '250g Pack', mrp: 249, price: 179 },
-    { name: '500g Mega Pack', mrp: 449, price: 329 }
-  ] },
-  { id: 'vratam-peta-kit', name: 'Vratam Peta Setup Kit', category: 'rentals', price: 299, deposit: 500, description: 'Traditional wooden peta setup, backdrop frames, brass lamps, copper kalash and complete aarti accessories.', image: 'images/vratam-peta.png', type: 'rental', rating: 4.9 }
-];
+const DEFAULT_ITEMS = [];
 
 // Cart State Management
 let cart = [];
@@ -202,8 +180,8 @@ function renderHomeProducts() {
 
   let allItems = globalProducts;
 
-  // Filter only sale items and take the first 4 for featured section
-  const saleItems = allItems.filter(i => i.type === 'sale').slice(0, 4);
+  // Filter only sale items
+  const saleItems = allItems.filter(i => i.type === 'sale');
 
   if (saleItems.length === 0) {
     container.innerHTML = `<p style="text-align:center; width:100%; color:#666;">No featured products available.</p>`;
