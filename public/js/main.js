@@ -1223,12 +1223,7 @@ function renderSingleProductPage() {
         <h1 class="amazon-title" itemprop="name">${item.name}</h1>
         <div class="amazon-brand">Visit the Veerabhadra Store</div>
         
-        <div class="amazon-rating-row">
-          <span class="amazon-stars">4.8 <span class="amazon-stars-visual">★★★★★</span></span>
-          <span class="amazon-rating-count">1,244 ratings</span>
-        </div>
-        
-        <div class="amazon-divider"></div>
+
         
         <div class="amazon-price-block" itemprop="offers" itemscope itemtype="https://schema.org/Offer">
           ${discount > 0 
@@ -1241,21 +1236,7 @@ function renderSingleProductPage() {
           <div class="amazon-taxes">Inclusive of all taxes</div>
         </div>
         
-        <div class="amazon-divider"></div>
-        
-        <div class="amazon-offers">
-          <div class="amazon-offers-title">Offers</div>
-          <div class="amazon-offers-grid">
-            <div class="amazon-offer-box">
-              <strong>Cashback</strong>
-              <p>Up to ₹50 on Amazon Pay...</p>
-            </div>
-            <div class="amazon-offer-box">
-              <strong>Bank Offer</strong>
-              <p>Upto ₹100 discount on Credit Cards...</p>
-            </div>
-          </div>
-        </div>
+
         
         <div class="amazon-divider"></div>
         
@@ -1270,7 +1251,7 @@ function renderSingleProductPage() {
       <!-- RIGHT: Buy Box -->
       <div class="amazon-buy-box">
         <div class="amazon-buy-price">₹${item.price}</div>
-        <div class="amazon-delivery">FREE delivery <strong>Tomorrow</strong> on your first order.</div>
+
         
         ${isOOS 
           ? `<h3 class="amazon-stock-status" style="color:#B12704;">Temporarily out of stock.</h3>` 
@@ -1287,7 +1268,7 @@ function renderSingleProductPage() {
           ${isOOS 
             ? `<button class="amazon-btn amazon-btn-notify" onclick="subscribeStockNotification('${item.id}', '${safeName}')">Notify Me When Available</button>`
             : `<button class="amazon-btn amazon-btn-cart add-to-cart-btn" data-id="${item.id}" data-name="${item.name}" data-price="${item.price}" data-image="${item.image || 'images/brass-diya.png'}">Add to cart</button>
-               <button class="amazon-btn amazon-btn-buy" onclick="orderDirect('${safeName}', ${item.price})">Buy Now</button>`
+               <button class="amazon-btn" style="background:#25D366; border-color:#25D366; color:#fff;" onclick="orderDirect('${safeName}', ${item.price})">Order on WhatsApp</button>`
           }
         </div>
         
