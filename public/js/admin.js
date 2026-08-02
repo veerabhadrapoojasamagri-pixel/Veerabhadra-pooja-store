@@ -2,6 +2,58 @@
 
 const DEFAULT_ITEMS = [];
 
+// Global Categories State
+let poojaCategories = [];
+const defaultCategories = [
+  "Brass Items",
+  "Copper, Brass, German Silver",
+  "Photo Frames",
+  "Daily Essentials",
+  "Rentals",
+  "Decorative Items, Return Gifts"
+];
+
+function initCategories() {
+  const saved = localStorage.getItem('pooja_custom_categories');
+  if (saved) {
+    try {
+      poojaCategories = JSON.parse(saved);
+    } catch (e) {
+      poojaCategories = [...defaultCategories];
+    }
+  } else {
+    poojaCategories = [...defaultCategories];
+  }
+  renderCategoryDatalist();
+}
+
+function renderCategoryDatalist() {
+  const dl = document.getElementById('categoryOptions');
+  if (!dl) return;
+  dl.innerHTML = '';
+  poojaCategories.forEach(cat => {
+    const opt = document.createElement('option');
+    opt.value = cat;
+    dl.appendChild(opt);
+  });
+}
+
+function deleteCurrentCategory() {
+  const input = document.getElementById('itemCategory');
+  const cat = input.value.trim();
+  if (!cat) {
+    showToast('Please type or select a category to delete.', 'error');
+    return;
+  }
+  if (confirm(`Are you sure you want to remove "${cat}" from the category suggestions?`)) {
+    poojaCategories = poojaCategories.filter(c => c.toLowerCase() !== cat.toLowerCase());
+    localStorage.setItem('pooja_custom_categories', JSON.stringify(poojaCategories));
+    renderCategoryDatalist();
+    input.value = '';
+    showToast(`Removed "${cat}" from suggestions.`);
+  }
+}
+
 const DEFAULT_ORDERS = [
   {
     id: 'VRB100001',
@@ -319,6 +371,7 @@ document.addEventListener('DOMContentLoaded', () => {
     window.history.replaceState(null, null, window.location.pathname);
   }
   initData();
+  initCategories();
   checkAuth();
   setupEventListeners();
   initUploadZone();
@@ -1306,7 +1359,7 @@ async function notifyWaitingCustomersForStock(item) {
 function clearForm() {
   document.getElementById('itemId').value = '';
   document.getElementById('itemName').value = '';
-  document.getElementById('itemCategory').value = 'brass-items';
+  document.getElementById('itemCategory').value = '';
   document.getElementById('itemMrp').value = '';
   document.getElementById('itemPrice').value = '';
   document.getElementById('rentalPrice').value = '';
@@ -1352,7 +1405,7 @@ function editItem(id) {
   
   document.getElementById('itemId').value = item.id;
   document.getElementById('itemName').value = item.name;
-  document.getElementById('itemCategory').value = item.category || 'brass-items';
+  document.getElementById('itemCategory').value = item.category || '';
   document.getElementById('itemImageUrl').value = item.image || '';
   document.getElementById('itemType').value = item.type;
   document.getElementById('itemDescription').value = item.description || '';
@@ -1409,7 +1462,13 @@ async function handleFormSubmit(e) {
   if (!proceed) return;
 
   const name = document.getElementById('itemName').value.trim();
-  const category = document.getElementById('itemCategory').value;
+  const categoryRaw = document.getElementById('itemCategory').value.trim();
+  const category = categoryRaw || 'daily-essentials';
+  if (categoryRaw && !poojaCategories.some(c => c.toLowerCase() === categoryRaw.toLowerCase())) {
+    poojaCategories.push(categoryRaw);
+    localStorage.setItem('pooja_custom_categories', JSON.stringify(poojaCategories));
+    renderCategoryDatalist();
+  }
   const fileInput = document.getElementById('itemImageFile');
   let imageUrl = document.getElementById('itemImageUrl').value.trim();
   const description = document.getElementById('itemDescription').value.trim();
