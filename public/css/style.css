@@ -320,17 +320,17 @@
 
  /* Mobile Sidebar Nav */
  .mobile-nav {
-   position: fixed;
-   top: 0;
-   left: -100%;
-   width: 80%;
-   max-width: 320px;
-   height: 100vh;
-   background-color: var(--color-bg-card);
-   z-index: 110;
-   padding: 2rem 1.5rem;
-   box-shadow: var(--shadow-lg);
-   transition: left var(--transition-normal);
+    position: fixed;
+    top: 0;
+    left: -100%;
+    width: 80%;
+    max-width: 320px;
+    height: 100vh;
+    background-color: var(--color-bg-card);
+    z-index: 1100;
+    padding: 2rem 1.5rem;
+    box-shadow: var(--shadow-lg);
+    transition: left var(--transition-normal);
    display: flex;
    flex-direction: column;
    gap: 2.5rem;
@@ -376,15 +376,15 @@
  }
 
  .mobile-nav-overlay {
-   position: fixed;
-   top: 0;
-   left: 0;
-   width: 100vw;
-   height: 100vh;
-   background-color: rgba(0, 0, 0, 0.4);
-   z-index: 105;
-   opacity: 0;
-   visibility: hidden;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    background-color: rgba(0, 0, 0, 0.4);
+    z-index: 1095;
+    opacity: 0;
+    visibility: hidden;
    transition: opacity var(--transition-normal), visibility var(--transition-normal);
  }
 
