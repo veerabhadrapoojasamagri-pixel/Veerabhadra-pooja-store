@@ -39,22 +39,6 @@ function renderCategoryDatalist() {
   });
 }
 
-function deleteCurrentCategory() {
-  const input = document.getElementById('itemCategory');
-  const cat = input.value.trim();
-  if (!cat) {
-    showToast('Please type or select a category to delete.', 'error');
-    return;
-  }
-  if (confirm(`Are you sure you want to remove "${cat}" from the category suggestions?`)) {
-    poojaCategories = poojaCategories.filter(c => c.toLowerCase() !== cat.toLowerCase());
-    localStorage.setItem('pooja_custom_categories', JSON.stringify(poojaCategories));
-    renderCategoryDatalist();
-    renderCategoriesTab();
-    input.value = '';
-    showToast(`Removed "${cat}" from suggestions.`);
-  }
-}
 
 function renderCategoriesTab() {
   const tbody = document.getElementById('categoriesTableBody');
