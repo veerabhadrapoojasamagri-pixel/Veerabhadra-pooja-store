@@ -1513,16 +1513,19 @@ function editItem(id) {
   document.getElementById('itemId').value = item.id;
   document.getElementById('itemName').value = item.name;
   document.getElementById('itemCategory').value = item.category || '';
-  document.getElementById('itemImageUrl').value = item.image || '';
+  document.getElementById('itemImageUrl').value = '';
   document.getElementById('itemType').value = item.type;
   document.getElementById('itemDescription').value = item.description || '';
 
-  if (item.image) {
-    const filename = item.image.substring(item.image.lastIndexOf('/') + 1) || 'image';
-    showPreview(item.image, filename, 'Saved Image');
+  if (item.images && item.images.length > 0) {
+    uploadedImages = [...item.images];
+  } else if (item.image) {
+    uploadedImages = [item.image];
   } else {
-    hidePreview();
+    uploadedImages = [];
   }
+  
+  if (window.renderPreviews) renderPreviews();
 
   const hasVariantsCheckbox = document.getElementById('hasVariants');
   const listContainer = document.getElementById('variantsList');
@@ -1581,10 +1584,17 @@ async function handleFormSubmit(e) {
   const description = document.getElementById('itemDescription').value.trim();
 
   // Check dropzone preview element for uploaded/selected image data
-  const previewImg = document.getElementById('previewImage');
-  if (!imageUrl && previewImg && previewImg.src && previewImg.src !== window.location.href && previewImg.src.length > 50) {
-    imageUrl = previewImg.src;
+  if (imageUrl && !uploadedImages.includes(imageUrl)) {
+    uploadedImages.push(imageUrl);
   }
+  
+  if (uploadedImages.length === 0) {
+    showToast('Please provide at least one image.');
+    return;
+  }
+  
+  const finalImageUrl = uploadedImages[0];
+  const finalImages = [...uploadedImages];
 
 
   let price, mrp, deposit, height = null, width = null;
@@ -1650,7 +1660,8 @@ async function handleFormSubmit(e) {
     id: id || 'item-' + Date.now(),
     name,
     category,
-    image: imageUrl || (type === 'rental' ? 'images/vratam-peta.png' : 'images/brass-diya.png'),
+    image: finalImageUrl || (type === 'rental' ? 'images/vratam-peta.png' : 'images/brass-diya.png'),
+    images: finalImages,
     type,
     price,
     mrp,
@@ -1771,59 +1782,48 @@ function initUploadZone() {
 
   function handleFiles(files) {
     if (files.length > 0) {
-      const file = files[0];
-      if (!file.type.startsWith('image/')) {
-        showToast('Please upload an image file (PNG, JPG, JPEG).');
-        return;
-      }
-      
-      // Update file input files programmatically
-      const dataTransfer = new DataTransfer();
-      dataTransfer.items.add(file);
-      fileInput.files = dataTransfer.files;
+      let filesProcessed = 0;
+      const urlInput = document.getElementById('itemImageUrl');
+      if (urlInput) urlInput.value = '';
 
-      // Clear url input since local file is selected
-      urlInput.value = '';
+      Array.from(files).forEach(file => {
+        if (!file.type.startsWith('image/')) {
+          showToast('Skipping non-image file: ' + file.name);
+          filesProcessed++;
+          return;
+        }
 
-      // Preview setup and client-side compression
-      const reader = new FileReader();
-      reader.onload = (e) => {
-        const img = new Image();
-        img.onload = () => {
-          const canvas = document.createElement('canvas');
-          const MAX_WIDTH = 600;
-          const MAX_HEIGHT = 600;
-          let width = img.width;
-          let height = img.height;
-
-          if (width > height) {
-            if (width > MAX_WIDTH) {
-              height *= MAX_WIDTH / width;
-              width = MAX_WIDTH;
+        const reader = new FileReader();
+        reader.onload = (e) => {
+          const img = new Image();
+          img.onload = () => {
+            const canvas = document.createElement('canvas');
+            const MAX_WIDTH = 800;
+            const MAX_HEIGHT = 800;
+            let width = img.width;
+            let height = img.height;
+            if (width > height) {
+              if (width > MAX_WIDTH) { height *= MAX_WIDTH / width; width = MAX_WIDTH; }
+            } else {
+              if (height > MAX_HEIGHT) { width *= MAX_HEIGHT / height; height = MAX_HEIGHT; }
             }
-          } else {
-            if (height > MAX_HEIGHT) {
-              width *= MAX_HEIGHT / height;
-              height = MAX_HEIGHT;
+            canvas.width = width;
+            canvas.height = height;
+            const ctx = canvas.getContext('2d');
+            ctx.drawImage(img, 0, 0, width, height);
+            
+            const compressedDataUrl = canvas.toDataURL('image/jpeg', 0.7);
+            uploadedImages.push(compressedDataUrl);
+            
+            filesProcessed++;
+            if (filesProcessed === files.length) {
+              if (window.renderPreviews) renderPreviews();
             }
-          }
-          canvas.width = width;
-          canvas.height = height;
-          const ctx = canvas.getContext('2d');
-          ctx.drawImage(img, 0, 0, width, height);
-          
-          // Compress to JPEG with 0.7 quality
-          const compressedDataUrl = canvas.toDataURL('image/jpeg', 0.7);
-          
-          // Approximate base64 size to KB
-          const sizeKB = Math.round(compressedDataUrl.length / 1333); 
-          const sizeStr = sizeKB + ' KB (Compressed)';
-          
-          showPreview(compressedDataUrl, file.name, sizeStr);
+          };
+          img.src = e.target.result;
         };
-        img.src = e.target.result;
-      };
-      reader.readAsDataURL(file);
+        reader.readAsDataURL(file);
+      });
     }
   }
 
@@ -1849,31 +1849,106 @@ function initUploadZone() {
   });
 }
 
-function showPreview(src, name, sizeInfo) {
-  const preview = document.getElementById('dropzonePreview');
-  const prompt = document.querySelector('.dropzone-prompt');
-  const previewImg = document.getElementById('previewImage');
-  const previewName = document.getElementById('previewName');
-  const previewSize = document.getElementById('previewSize');
-
-  if (previewImg) previewImg.src = src;
-  if (previewName) previewName.textContent = name;
-  if (previewSize) previewSize.textContent = sizeInfo || '';
+function renderPreviews() {
+  const previewGrid = document.getElementById('dropzonePreview');
+  const prompt = document.getElementById('dropzonePrompt');
+  const dropzone = document.getElementById('uploadDropzone');
   
-  if (preview) preview.style.display = 'flex';
-  if (prompt) prompt.style.display = 'none';
+  if (uploadedImages.length > 0) {
+    previewGrid.style.display = 'flex';
+    if(prompt) prompt.style.display = 'none';
+    if(dropzone) dropzone.style.padding = '1rem';
+    previewGrid.innerHTML = '';
+    
+    uploadedImages.forEach((src, index) => {
+      const container = document.createElement('div');
+      container.style.position = 'relative';
+      container.style.width = '100px';
+      container.style.height = '100px';
+      container.style.borderRadius = '8px';
+      container.style.overflow = 'hidden';
+      container.style.border = '1px solid #ccc';
+      container.style.boxShadow = '0 2px 4px rgba(0,0,0,0.1)';
+      
+      const img = document.createElement('img');
+      img.src = src;
+      img.style.width = '100%';
+      img.style.height = '100%';
+      img.style.objectFit = 'cover';
+      
+      const removeBtn = document.createElement('button');
+      removeBtn.innerHTML = '×';
+      removeBtn.style.position = 'absolute';
+      removeBtn.style.top = '4px';
+      removeBtn.style.right = '4px';
+      removeBtn.style.background = '#e74c3c';
+      removeBtn.style.color = '#fff';
+      removeBtn.style.border = 'none';
+      removeBtn.style.borderRadius = '50%';
+      removeBtn.style.width = '24px';
+      removeBtn.style.height = '24px';
+      removeBtn.style.cursor = 'pointer';
+      removeBtn.style.display = 'flex';
+      removeBtn.style.alignItems = 'center';
+      removeBtn.style.justifyContent = 'center';
+      removeBtn.style.fontSize = '18px';
+      removeBtn.style.lineHeight = '1';
+      removeBtn.style.zIndex = '10';
+      removeBtn.style.boxShadow = '0 2px 4px rgba(0,0,0,0.2)';
+      
+      removeBtn.onclick = (e) => {
+        e.preventDefault();
+        e.stopPropagation();
+        uploadedImages.splice(index, 1);
+        renderPreviews();
+      };
+      
+      container.appendChild(img);
+      container.appendChild(removeBtn);
+      previewGrid.appendChild(container);
+    });
+    
+    const addMore = document.createElement('div');
+    addMore.style.width = '100px';
+    addMore.style.height = '100px';
+    addMore.style.borderRadius = '8px';
+    addMore.style.border = '2px dashed var(--color-primary)';
+    addMore.style.display = 'flex';
+    addMore.style.alignItems = 'center';
+    addMore.style.justifyContent = 'center';
+    addMore.style.cursor = 'pointer';
+    addMore.style.color = 'var(--color-primary)';
+    addMore.style.fontSize = '32px';
+    addMore.style.background = 'rgba(243, 112, 34, 0.05)';
+    addMore.innerHTML = '+';
+    addMore.title = 'Add more images';
+    addMore.onclick = (e) => {
+       e.preventDefault();
+       e.stopPropagation();
+       document.getElementById('itemImageFile').click();
+    };
+    previewGrid.appendChild(addMore);
+    
+  } else {
+    previewGrid.style.display = 'none';
+    if(prompt) prompt.style.display = 'block';
+    if(dropzone) dropzone.style.padding = '';
+    previewGrid.innerHTML = '';
+    const fileInput = document.getElementById('itemImageFile');
+    if (fileInput) fileInput.value = '';
+  }
+}
+
+window.renderPreviews = renderPreviews;
+
+function showPreview(src, name, sizeInfo) {
+  if (src && !uploadedImages.includes(src)) uploadedImages.push(src);
+  renderPreviews();
 }
 
 function hidePreview() {
-  const preview = document.getElementById('dropzonePreview');
-  const prompt = document.querySelector('.dropzone-prompt');
-  const previewImg = document.getElementById('previewImage');
-  const fileInput = document.getElementById('itemImageFile');
-
-  if (preview) preview.style.display = 'none';
-  if (prompt) prompt.style.display = 'block';
-  if (previewImg) previewImg.src = '';
-  if (fileInput) fileInput.value = '';
+  uploadedImages = [];
+  if (window.renderPreviews) renderPreviews();
 }
 
 /* ========================================================
