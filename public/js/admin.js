@@ -1431,8 +1431,16 @@ function clearForm() {
 }
 
 function openAddForm() {
-  clearForm();
+  const itemId = document.getElementById('itemId').value;
+  if (itemId) {
+    clearForm();
+  }
   switchTab('add-item');
+}
+
+function cancelForm() {
+  clearForm();
+  switchTab('products');
 }
 
 function editItem(id) {
