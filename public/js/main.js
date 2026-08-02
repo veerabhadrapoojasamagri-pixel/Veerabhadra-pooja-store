@@ -927,6 +927,9 @@ function getFullImageUrl(img) {
 window.checkoutWhatsApp = () => {
   if (cart.length === 0) return;
 
+  const proceed = confirm("Are you sure you want to proceed to checkout with this order?");
+  if (!proceed) return;
+
   showCustomerDetailsModal(async (customer) => {
     let total = 0;
     cart.forEach((item) => {
@@ -993,6 +996,9 @@ window.orderDirect = (name, price, customImage) => {
   const fullImg = getFullImageUrl(matchedImg || 'images/brass-diya.png');
 
   if (price > 0 && !name.includes('Inquiry') && !name.includes('Query')) {
+    const proceed = confirm(`Are you sure you want to proceed with ordering "${name}"?`);
+    if (!proceed) return;
+
     showCustomerDetailsModal(async (customer) => {
       const orderId = await saveOrderToStorage({
         customerName: customer.name,
@@ -1062,6 +1068,9 @@ function initBookingForm() {
         alert('Please fill out all fields.');
         return;
       }
+
+      const proceed = confirm("Are you sure you want to proceed with this rental booking?");
+      if (!proceed) return;
 
       const totalAmount = (299 * duration) + 500;
       const orderId = await saveOrderToStorage({

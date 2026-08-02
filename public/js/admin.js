@@ -1401,6 +1401,13 @@ async function handleFormSubmit(e) {
   e.preventDefault();
 
   const id = document.getElementById('itemId').value;
+  const type = document.getElementById('itemType').value;
+  
+  const actionText = id ? 'update' : 'add';
+  const typeText = type === 'rental' ? 'rental product' : 'inventory product';
+  const proceed = confirm(`Are you sure you want to ${actionText} this ${typeText}?`);
+  if (!proceed) return;
+
   const name = document.getElementById('itemName').value.trim();
   const category = document.getElementById('itemCategory').value;
   const fileInput = document.getElementById('itemImageFile');
