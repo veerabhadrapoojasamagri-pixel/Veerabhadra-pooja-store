@@ -1,6 +1,7 @@
 // Admin Dashboard Logic
 
 const DEFAULT_ITEMS = [];
+let uploadedImages = [];
 
 // Global Categories State
 let poojaCategories = [];

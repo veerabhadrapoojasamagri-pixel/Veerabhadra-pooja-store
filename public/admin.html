@@ -537,19 +537,14 @@
                 <label class="form-label">Item Image *</label>
                 <div class="upload-container">
                   <div class="upload-dropzone" id="uploadDropzone">
-                    <input type="file" id="itemImageFile" accept="image/*" style="display: none;">
-                    <div class="dropzone-prompt">
+                    <input type="file" id="itemImageFile" accept="image/*" multiple style="display: none;">
+                    <div class="dropzone-prompt" id="dropzonePrompt">
                       <span class="upload-icon">📸</span>
-                      <p class="upload-text"><strong>Drag & drop image here</strong> or <span class="upload-link">browse</span></p>
-                      <p class="upload-subtext">Supports PNG, JPG, JPEG (Max 5MB)</p>
+                      <p class="upload-text"><strong>Drag & drop images here</strong> or <span class="upload-link">browse</span></p>
+                      <p class="upload-subtext">Supports PNG, JPG, JPEG (Max 5MB per image)</p>
                     </div>
-                    <div class="dropzone-preview" id="dropzonePreview" style="display: none;">
-                      <img id="previewImage" src="" alt="Preview">
-                      <div class="preview-info">
-                        <span id="previewName" class="preview-name">filename.jpg</span>
-                        <span id="previewSize" class="preview-size">120 KB</span>
-                      </div>
-                      <button type="button" class="preview-remove-btn" id="removePreviewBtn" title="Remove image">&times;</button>
+                    <div class="dropzone-preview-grid" id="dropzonePreview" style="display: none; display: flex; flex-wrap: wrap; gap: 10px; margin-top: 15px;">
+                      <!-- Previews will be injected here -->
                     </div>
                   </div>
 
