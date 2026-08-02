@@ -60,7 +60,7 @@ function buildProductCardHtml(item) {
     : 0;
   const saveAmt = item.mrp && item.price ? item.mrp - item.price : 0;
   const categoryLabel = CATEGORY_META[item.category]?.label || (item.category || 'Products').replace(/-/g, ' ').replace(/\b\w/g, c => c.toUpperCase());
-  const safeName = item.name.replace(/'/g, "\\'");
+  const safeName = item.name.replace(/'/g, "\'");
   const isOOS = !!item.outOfStock;
 
   return `
@@ -255,7 +255,7 @@ function renderRatings() {
             orderNowBtn.removeAttribute('disabled');
             orderNowBtn.style.cssText = 'background: linear-gradient(135deg, #25D366, #128C7E); color: #fff; border: none; border-radius: var(--radius-full, 50px); font-size: 0.825rem; font-weight: 700; padding: 0.55rem 1.1rem; cursor: pointer; display: inline-flex; align-items: center; gap: 4px; box-shadow: 0 4px 12px rgba(37,211,102,0.3); pointer-events: auto;';
             orderNowBtn.innerHTML = '🔔 Notify Me';
-            const escapedName = (item.name || '').replace(/'/g, "\\'");
+            const escapedName = (item.name || '').replace(/'/g, "\'");
             orderNowBtn.setAttribute('onclick', `subscribeStockNotification('${item.id}', '${escapedName}')`);
           }
         }
@@ -1205,102 +1205,101 @@ function renderSingleProductPage() {
     : 0;
   const saveAmt = item.mrp && item.price ? item.mrp - item.price : 0;
   const categoryLabel = CATEGORY_META[item.category]?.label || (item.category || 'Products').replace(/-/g, ' ').replace(/\b\w/g, c => c.toUpperCase());
-  const safeName = item.name.replace(/'/g, "\\'");
+  const safeName = item.name.replace(/'/g, "\'");
   const isOOS = !!item.outOfStock;
 
-  let actionButtonsHtml = '';
-  if (isOOS) {
-    actionButtonsHtml = `
-      <button class="btn btn-secondary btn-lg add-to-cart-btn" disabled
-        style="opacity:0.45;cursor:not-allowed;pointer-events:none; width:100%; margin-bottom: 1rem;"
-        data-id="${item.id}"
-        data-name="${item.name}"
-        data-price="${item.price}"
-        data-image="${item.image || 'images/brass-diya.png'}">
-        Add to Cart
-      </button>
-      <button class="btn btn-lg"
-        onclick="subscribeStockNotification('${item.id}', '${safeName}')"
-        style="background: linear-gradient(135deg, #25D366, #128C7E); color: #fff; border: none; border-radius: var(--radius-md); font-size: 1.1rem; font-weight: 700; padding: 1rem; width: 100%; cursor: pointer; display: flex; align-items: center; justify-content:center; gap: 8px; box-shadow: 0 4px 12px rgba(37,211,102,0.3); pointer-events: auto;">
-        🔔 Notify Me When Available
-      </button>
-    `;
-  } else {
-    actionButtonsHtml = `
-      <button class="btn btn-secondary btn-lg add-to-cart-btn"
-        style="width: 100%; margin-bottom: 1rem; padding: 1rem; font-size: 1.1rem;"
-        data-id="${item.id}"
-        data-name="${item.name}"
-        data-price="${item.price}"
-        data-image="${item.image || 'images/brass-diya.png'}">
-        🛒 Add to Cart
-      </button>
-      <button class="btn btn-whatsapp btn-lg" 
-        style="width: 100%; padding: 1rem; font-size: 1.1rem;"
-        onclick="orderDirect('${safeName}', ${item.price})">
-        Order Now on WhatsApp
-      </button>
-    `;
-  }
-
   container.innerHTML = `
-    <div class="single-product-container" itemscope itemtype="https://schema.org/Product">
-      <div class="single-product-image-col">
-        ${discount > 0 && !isOOS ? `<span class="single-discount-badge">${discount}% OFF</span>` : ''}
-        ${isOOS ? `<div style="position:absolute;inset:0;background:rgba(255,255,255,0.6);display:flex;align-items:center;justify-content:center;z-index:2;"><span style="background:#ef4444;color:#fff;font-size:1.2rem;font-weight:800;padding:10px 24px;border-radius:30px;letter-spacing:1px;text-transform:uppercase;box-shadow:0 4px 12px rgba(239,68,68,0.3);">Out of Stock</span></div>` : ''}
-        <img src="${item.image || 'images/brass-diya.png'}" alt="${item.name}" class="single-product-image" style="${isOOS ? 'opacity:0.5;filter:grayscale(40%);' : ''}" itemprop="image">
+    <div class="amazon-product-container" itemscope itemtype="https://schema.org/Product">
+      
+      <!-- LEFT: Image Box -->
+      <div class="amazon-image-col">
+        ${discount > 0 && !isOOS ? `<span class="amazon-discount-badge">${discount}% OFF</span>` : ''}
+        ${isOOS ? `<div class="amazon-oos-overlay"><span>Out of Stock</span></div>` : ''}
+        <img src="${item.image || 'images/brass-diya.png'}" alt="${item.name}" class="amazon-main-image" style="${isOOS ? 'opacity:0.5;filter:grayscale(40%);' : ''}" itemprop="image">
       </div>
-      <div class="single-product-info-col">
-        <div class="single-product-category">${categoryLabel}</div>
-        <h1 class="single-product-title" itemprop="name">${item.name}</h1>
+      
+      <!-- MIDDLE: Product Info -->
+      <div class="amazon-info-col">
+        <h1 class="amazon-title" itemprop="name">${item.name}</h1>
+        <div class="amazon-brand">Visit the Veerabhadra Store</div>
         
-        <div style="color:#f59e0b; margin-bottom:1.5rem; font-size:1.2rem;">
-          ★★★★★ <span style="color:#666; font-size:0.95rem;">(Trusted Quality)</span>
+        <div class="amazon-rating-row">
+          <span class="amazon-stars">4.8 <span class="amazon-stars-visual">★★★★★</span></span>
+          <span class="amazon-rating-count">1,244 ratings</span>
         </div>
         
-        <div class="single-product-price-row" itemprop="offers" itemscope itemtype="https://schema.org/Offer">
-          <span class="single-selling-price">₹${item.price}</span>
+        <div class="amazon-divider"></div>
+        
+        <div class="amazon-price-block" itemprop="offers" itemscope itemtype="https://schema.org/Offer">
+          ${discount > 0 
+            ? `<div class="amazon-discount-row"><span class="amazon-discount-pct">-${discount}%</span> <span class="amazon-price">₹${item.price}</span></div>` 
+            : `<div class="amazon-price">₹${item.price}</div>`}
           <meta itemprop="price" content="${item.price}" />
           <meta itemprop="priceCurrency" content="INR" />
-          ${item.mrp && item.mrp > item.price ? `<span class="single-mrp">₹${item.mrp}</span>` : ''}
-          ${saveAmt > 0 ? `<span class="single-you-save">You Save ₹${saveAmt}</span>` : ''}
+          
+          ${item.mrp && item.mrp > item.price ? `<div class="amazon-mrp">M.R.P.: <span>₹${item.mrp}</span></div>` : ''}
+          <div class="amazon-taxes">Inclusive of all taxes</div>
         </div>
         
-        <div class="single-product-desc-container">
-          <h3>Product Details</h3>
-          <p class="single-product-desc" itemprop="description">
-            ${item.description ? item.description.replace(/\\n/g, '<br>') : 'A beautiful, traditional item for your sacred space, handpicked for its quality and significance.'}
-          </p>
-        </div>
-
-        <div class="single-product-actions">
-          ${actionButtonsHtml}
+        <div class="amazon-divider"></div>
+        
+        <div class="amazon-offers">
+          <div class="amazon-offers-title">Offers</div>
+          <div class="amazon-offers-grid">
+            <div class="amazon-offer-box">
+              <strong>Cashback</strong>
+              <p>Up to ₹50 on Amazon Pay...</p>
+            </div>
+            <div class="amazon-offer-box">
+              <strong>Bank Offer</strong>
+              <p>Upto ₹100 discount on Credit Cards...</p>
+            </div>
+          </div>
         </div>
         
-        <div class="single-product-trust-badges">
-          <div class="trust-badge">
-            <span style="font-size: 1.5rem;">🛡️</span> 
-            <div>
-              <strong>Secure</strong>
-              <div style="font-size: 0.8rem; color: #666;">100% Safe Payments</div>
-            </div>
-          </div>
-          <div class="trust-badge">
-            <span style="font-size: 1.5rem;">🚚</span> 
-            <div>
-              <strong>Delivery</strong>
-              <div style="font-size: 0.8rem; color: #666;">Reliable local delivery</div>
-            </div>
-          </div>
-          <div class="trust-badge">
-            <span style="font-size: 1.5rem;">✨</span> 
-            <div>
-              <strong>Authentic</strong>
-              <div style="font-size: 0.8rem; color: #666;">Premium Quality</div>
-            </div>
-          </div>
+        <div class="amazon-divider"></div>
+        
+        <div class="amazon-desc-block">
+          <h3>About this item</h3>
+          <ul class="amazon-desc-list">
+            ${item.description ? item.description.split('\n').filter(l=>l.trim()).map(line => `<li>${line}</li>`).join('') : `<li>Premium quality traditional pooja item</li><li>Perfect for your sacred space and rituals</li><li>Carefully packed and delivered securely</li>`}
+          </ul>
         </div>
       </div>
+      
+      <!-- RIGHT: Buy Box -->
+      <div class="amazon-buy-box">
+        <div class="amazon-buy-price">₹${item.price}</div>
+        <div class="amazon-delivery">FREE delivery <strong>Tomorrow</strong> on your first order.</div>
+        
+        ${isOOS 
+          ? `<h3 class="amazon-stock-status" style="color:#B12704;">Temporarily out of stock.</h3>` 
+          : `<h3 class="amazon-stock-status">In stock</h3>`}
+        
+        ${!isOOS ? `<div class="amazon-qty">
+          <label for="buyQty">Quantity: </label>
+          <select id="buyQty" class="amazon-qty-select">
+            <option>1</option><option>2</option><option>3</option><option>4</option>
+          </select>
+        </div>` : ''}
+        
+        <div class="amazon-buy-actions">
+          ${isOOS 
+            ? `<button class="amazon-btn amazon-btn-notify" onclick="subscribeStockNotification('${item.id}', '${safeName}')">Notify Me When Available</button>`
+            : `<button class="amazon-btn amazon-btn-cart add-to-cart-btn" data-id="${item.id}" data-name="${item.name}" data-price="${item.price}" data-image="${item.image || 'images/brass-diya.png'}">Add to cart</button>
+               <button class="amazon-btn amazon-btn-buy" onclick="orderDirect('${safeName}', ${item.price})">Buy Now</button>`
+          }
+        </div>
+        
+        <div class="amazon-ships-from">
+          <table>
+            <tr><td>Ships from</td><td>Veerabhadra Store</td></tr>
+            <tr><td>Sold by</td><td>Veerabhadra Store</td></tr>
+            <tr><td>Payment</td><td>Secure transaction</td></tr>
+          </table>
+        </div>
+      </div>
+      
     </div>
   `;
   
@@ -1321,4 +1320,3 @@ function renderSingleProductPage() {
   // Re-attach cart button event listeners after dynamic render
   bindAddToCartButtons();
 }
-
