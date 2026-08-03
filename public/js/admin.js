@@ -1775,16 +1775,19 @@ function initUploadZone() {
         body: formData
       });
       
-      if (!response.ok) throw new Error('Upload failed');
-      
       const data = await response.json();
+      
+      if (!response.ok) {
+        throw new Error(data.error || 'Upload failed');
+      }
+      
       if (urlEl) urlEl.value = data.imageUrl;
       if (statusEl) statusEl.textContent = 'Uploaded successfully!';
       setTimeout(() => { if (statusEl) statusEl.textContent = ''; }, 3000);
     } catch (err) {
       console.error('Video upload error:', err);
       if (statusEl) {
-        statusEl.textContent = 'Error uploading video.';
+        statusEl.textContent = 'Error: ' + err.message;
         statusEl.style.color = '#e74c3c';
         setTimeout(() => {
           statusEl.textContent = '';

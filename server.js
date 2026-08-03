@@ -148,8 +148,15 @@ if (cloudinaryConfigured) {
 
 // ─── Supabase manages products directly from client-side now ──────────────────────────
 
-// Image Upload Endpoint
-app.post('/api/upload', upload.single('image'), (req, res) => {
+app.post('/api/upload', (req, res, next) => {
+  upload.single('image')(req, res, (err) => {
+    if (err) {
+      console.error('Multer error:', err);
+      return res.status(400).json({ error: err.message });
+    }
+    next();
+  });
+}, (req, res) => {
   if (!req.file) return res.status(400).json({ error: 'No file uploaded or file too large' });
   // Cloudinary returns req.file.path (URL); local returns req.file.filename
   const imageUrl = cloudinaryConfigured

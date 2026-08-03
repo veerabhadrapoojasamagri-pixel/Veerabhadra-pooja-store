@@ -55,14 +55,22 @@
     setupKeyboardShortcuts();
   });
 
-  // Load Catalog from window.DEFAULT_ITEMS or fallback
+  // Load Catalog from globalProducts or fallback
   function initCatalog() {
-    if (typeof window.DEFAULT_ITEMS !== 'undefined' && Array.isArray(window.DEFAULT_ITEMS)) {
+    if (typeof globalProducts !== 'undefined' && Array.isArray(globalProducts) && globalProducts.length > 0) {
+      productCatalog = globalProducts;
+    } else if (typeof window.DEFAULT_ITEMS !== 'undefined' && Array.isArray(window.DEFAULT_ITEMS)) {
       productCatalog = window.DEFAULT_ITEMS;
     } else {
       productCatalog = DEFAULT_PRODUCTS;
     }
   }
+
+  window.addEventListener('productsLoaded', (e) => {
+    if (e.detail && Array.isArray(e.detail)) {
+      productCatalog = e.detail;
+    }
+  });
 
   // --- Recent Searches LocalStorage Logic ---
   function loadRecentSearches() {

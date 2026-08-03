@@ -19,6 +19,7 @@ async function fetchProducts() {
       
       if (!error && data && data.items && data.items.length > 0) {
         globalProducts = data.items;
+        window.dispatchEvent(new CustomEvent('productsLoaded', { detail: globalProducts }));
       }
     }
   } catch(e) {
