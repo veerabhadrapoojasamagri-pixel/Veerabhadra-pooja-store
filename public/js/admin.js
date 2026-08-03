@@ -1471,6 +1471,7 @@ function clearForm() {
 
   document.getElementById('itemDescription').value = '';
   document.getElementById('itemImageUrl').value = '';
+  if (document.getElementById('itemVideoUrl')) document.getElementById('itemVideoUrl').value = '';
   document.getElementById('itemRating').value = '5.0';
   
   const hasVariantsCheckbox = document.getElementById('hasVariants');
@@ -1516,6 +1517,7 @@ function editItem(id) {
   document.getElementById('itemImageUrl').value = '';
   document.getElementById('itemType').value = item.type;
   document.getElementById('itemDescription').value = item.description || '';
+  if (document.getElementById('itemVideoUrl')) document.getElementById('itemVideoUrl').value = item.video_url || '';
 
   if (item.images && item.images.length > 0) {
     uploadedImages = [...item.images];
@@ -1582,6 +1584,8 @@ async function handleFormSubmit(e) {
   const fileInput = document.getElementById('itemImageFile');
   let imageUrl = document.getElementById('itemImageUrl').value.trim();
   const description = document.getElementById('itemDescription').value.trim();
+  const videoUrlEl = document.getElementById('itemVideoUrl');
+  const video_url = videoUrlEl ? videoUrlEl.value.trim() : '';
 
   // Check dropzone preview element for uploaded/selected image data
   if (imageUrl && !uploadedImages.includes(imageUrl)) {
@@ -1669,6 +1673,7 @@ async function handleFormSubmit(e) {
     height: type === 'rental' ? height : undefined,
     width: type === 'rental' ? width : undefined,
     description,
+    video_url: video_url || undefined,
     rating,
     variants: variants.length > 0 ? variants : undefined
   };
@@ -1755,6 +1760,45 @@ function initUploadZone() {
   fileInput.addEventListener('change', (e) => {
     handleFiles(e.target.files);
   });
+
+  const videoInput = document.getElementById('itemVideoFile');
+  if (videoInput) {
+    videoInput.addEventListener('change', async (e) => {
+      const file = e.target.files[0];
+      if (!file) return;
+      
+      const statusEl = document.getElementById('videoUploadStatus');
+      const urlEl = document.getElementById('itemVideoUrl');
+      if (statusEl) statusEl.textContent = 'Uploading video...';
+      
+      const formData = new FormData();
+      formData.append('image', file);
+      
+      try {
+        const response = await fetch('/api/upload', {
+          method: 'POST',
+          body: formData
+        });
+        
+        if (!response.ok) throw new Error('Upload failed');
+        
+        const data = await response.json();
+        if (urlEl) urlEl.value = data.imageUrl;
+        if (statusEl) statusEl.textContent = 'Uploaded successfully!';
+        setTimeout(() => { if (statusEl) statusEl.textContent = ''; }, 3000);
+      } catch (err) {
+        console.error('Video upload error:', err);
+        if (statusEl) {
+          statusEl.textContent = 'Error uploading video.';
+          statusEl.style.color = '#e74c3c';
+          setTimeout(() => {
+            statusEl.textContent = '';
+            statusEl.style.color = 'var(--color-primary)';
+          }, 3000);
+        }
+      }
+    });
+  }
 
   // Drag over/enter visual effects
   ['dragenter', 'dragover'].forEach(eventName => {

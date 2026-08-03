@@ -1212,6 +1212,43 @@ function renderSingleProductPage() {
   const safeName = item.name.replace(/'/g, "\'");
   const isOOS = !!item.outOfStock;
 
+  const getEmbedUrl = (url) => {
+    if (!url) return null;
+    const ytMatch = url.match(/(?:youtube\.com\/(?:[^\/]+\/.+\/|(?:v|e(?:mbed)?)\/|.*[?&]v=)|youtu\.be\/)([^"&?\/\s]{11})/i);
+    if (ytMatch && ytMatch[1]) {
+      return `https://www.youtube.com/embed/${ytMatch[1]}`;
+    }
+    const vimeoMatch = url.match(/(?:vimeo\.com\/)(\d+)/i);
+    if (vimeoMatch && vimeoMatch[1]) {
+      return `https://player.vimeo.com/video/${vimeoMatch[1]}`;
+    }
+    return url;
+  };
+
+  const mediaItems = [];
+  if (item.video_url) {
+    mediaItems.push({ type: 'video', url: getEmbedUrl(item.video_url) });
+  }
+  if (item.images && item.images.length > 0) {
+    item.images.forEach(img => mediaItems.push({ type: 'image', url: img }));
+  } else if (item.image) {
+    mediaItems.push({ type: 'image', url: item.image });
+  } else {
+    mediaItems.push({ type: 'image', url: 'images/brass-diya.png' });
+  }
+
+  const renderMedia = (media, isOOS) => {
+    if (media.type === 'video') {
+      if (media.url.includes('youtube.com') || media.url.includes('vimeo.com')) {
+        return `<iframe src="${media.url}" frameborder="0" allow="autoplay; encrypted-media" allowfullscreen style="width:100%; height:100%; max-height: 400px; ${isOOS ? 'opacity:0.5;filter:grayscale(40%);' : ''}"></iframe>`;
+      } else {
+        return `<video src="${media.url}" controls style="width:100%; height:100%; max-height: 400px; object-fit: contain; ${isOOS ? 'opacity:0.5;filter:grayscale(40%);' : ''}"></video>`;
+      }
+    } else {
+      return `<img src="${media.url}" alt="${safeName}" style="${isOOS ? 'opacity:0.5;filter:grayscale(40%);' : ''}" itemprop="image">`;
+    }
+  };
+
   container.innerHTML = `
     <div class="amazon-product-container" itemscope itemtype="https://schema.org/Product">
       
@@ -1220,25 +1257,25 @@ function renderSingleProductPage() {
         ${discount > 0 && !isOOS ? `<span class="amazon-discount-badge" style="z-index: 20;">${discount}% OFF</span>` : ''}
         ${isOOS ? `<div class="amazon-oos-overlay" style="z-index: 20;"><span>Out of Stock</span></div>` : ''}
         
-        ${(item.images && item.images.length > 1) ? `
+        ${(mediaItems.length > 1) ? `
           <div class="product-slider-container">
             <div class="product-slider-track" id="productSliderTrack">
-              ${item.images.map(imgSrc => `
+              ${mediaItems.map(media => `
                 <div class="product-slider-slide">
-                  <img src="${imgSrc}" alt="${item.name}" style="${isOOS ? 'opacity:0.5;filter:grayscale(40%);' : ''}" itemprop="image">
+                  ${renderMedia(media, isOOS)}
                 </div>
               `).join('')}
             </div>
             <button class="slider-arrow prev" onclick="moveSlider(-1)">&#10094;</button>
             <button class="slider-arrow next" onclick="moveSlider(1)">&#10095;</button>
             <div class="slider-dots" id="productSliderDots">
-              ${item.images.map((_, i) => `
+              ${mediaItems.map((_, i) => `
                 <div class="slider-dot ${i === 0 ? 'active' : ''}" onclick="goToSlide(${i})"></div>
               `).join('')}
             </div>
           </div>
         ` : `
-          <img src="${item.image || 'images/brass-diya.png'}" alt="${item.name}" class="amazon-main-image" style="${isOOS ? 'opacity:0.5;filter:grayscale(40%);' : ''}" itemprop="image">
+          ${renderMedia(mediaItems[0], isOOS)}
         `}
       </div>
       

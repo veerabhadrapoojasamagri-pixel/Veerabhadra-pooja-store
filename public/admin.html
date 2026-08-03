@@ -557,6 +557,21 @@
                   <input type="text" id="itemImageUrl" class="form-input" placeholder="e.g. images/brass-diya.png">
                 </div>
               </div>
+              <div class="form-group" style="margin-top: 1.5rem;">
+                <label class="form-label">Product Video (Optional)</label>
+                <div style="display: flex; gap: 10px; align-items: center; margin-bottom: 0.5rem;">
+                  <input type="file" id="itemVideoFile" accept="video/mp4,video/webm,video/quicktime" style="display: none;">
+                  <button type="button" class="btn btn-secondary btn-sm" onclick="document.getElementById('itemVideoFile').click()" style="width: auto;">Upload Video File</button>
+                  <span id="videoUploadStatus" style="font-size: 0.85rem; color: var(--color-primary); font-weight: 500;"></span>
+                </div>
+                <div class="or-separator" style="margin: 0.5rem 0;">
+                  <span class="separator-line"></span>
+                  <span class="separator-text" style="font-size: 0.75rem;">OR ENTER URL</span>
+                  <span class="separator-line"></span>
+                </div>
+                <input type="url" id="itemVideoUrl" class="form-input" placeholder="e.g. https://www.youtube.com/watch?v=...">
+                <p style="font-size: 0.8rem; color: var(--color-text-muted); margin-top: 0.3rem;">Upload an MP4/WebM video (Max 50MB) OR paste a YouTube/Vimeo link.</p>
+              </div>
 
               <div class="form-group" style="margin-bottom: 1.5rem;">
                 <label for="itemDescription" class="form-label">Description / Features</label>
@@ -686,6 +701,6 @@
   <!-- Main scripts -->
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <script src="js/supabase-config.js"></script>
-  <script src="js/admin.js?v=6"></script>
+  <script src="js/admin.js?v=7"></script>
 </body>
 </html>

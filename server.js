@@ -132,9 +132,9 @@ if (cloudinaryConfigured) {
   const cloudinary = require('cloudinary').v2;
   const cloudStorage = new CloudinaryStorage({
     cloudinary,
-    params: { folder: 'pooja-store', allowed_formats: ['jpg', 'jpeg', 'png', 'webp', 'gif'] }
+    params: { folder: 'pooja-store', resource_type: 'auto', allowed_formats: ['jpg', 'jpeg', 'png', 'webp', 'gif', 'mp4', 'webm', 'mov'] }
   });
-  upload = multer({ storage: cloudStorage, limits: { fileSize: 5 * 1024 * 1024 } });
+  upload = multer({ storage: cloudStorage, limits: { fileSize: 50 * 1024 * 1024 } });
 } else {
   // Local disk fallback
   const uploadDir = path.join(__dirname, 'public', 'images');
@@ -143,7 +143,7 @@ if (cloudinaryConfigured) {
     destination: (req, file, cb) => cb(null, uploadDir),
     filename: (req, file, cb) => cb(null, Date.now() + '-' + Math.round(Math.random() * 1e9) + path.extname(file.originalname))
   });
-  upload = multer({ storage: localStorage, limits: { fileSize: 5 * 1024 * 1024 } });
+  upload = multer({ storage: localStorage, limits: { fileSize: 50 * 1024 * 1024 } });
 }
 
 // ─── Supabase manages products directly from client-side now ──────────────────────────
