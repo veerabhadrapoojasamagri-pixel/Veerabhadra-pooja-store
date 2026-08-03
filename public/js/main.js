@@ -404,7 +404,7 @@ async function checkAuthState() {
       mobileAuthLink.href = 'login.html';
     }
     if (cartTrigger) {
-      cartTrigger.style.display = 'none';
+      cartTrigger.style.display = 'flex';
     }
     
     // Remove Settings link from desktop navbar menu
