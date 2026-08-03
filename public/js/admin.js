@@ -1761,42 +1761,44 @@ function initUploadZone() {
     handleFiles(e.target.files);
   });
 
+  async function uploadVideoFile(file) {
+    const statusEl = document.getElementById('videoUploadStatus');
+    const urlEl = document.getElementById('itemVideoUrl');
+    if (statusEl) statusEl.textContent = 'Uploading video...';
+    
+    const formData = new FormData();
+    formData.append('image', file);
+    
+    try {
+      const response = await fetch('/api/upload', {
+        method: 'POST',
+        body: formData
+      });
+      
+      if (!response.ok) throw new Error('Upload failed');
+      
+      const data = await response.json();
+      if (urlEl) urlEl.value = data.imageUrl;
+      if (statusEl) statusEl.textContent = 'Uploaded successfully!';
+      setTimeout(() => { if (statusEl) statusEl.textContent = ''; }, 3000);
+    } catch (err) {
+      console.error('Video upload error:', err);
+      if (statusEl) {
+        statusEl.textContent = 'Error uploading video.';
+        statusEl.style.color = '#e74c3c';
+        setTimeout(() => {
+          statusEl.textContent = '';
+          statusEl.style.color = 'var(--color-primary)';
+        }, 3000);
+      }
+    }
+  }
+
   const videoInput = document.getElementById('itemVideoFile');
   if (videoInput) {
-    videoInput.addEventListener('change', async (e) => {
+    videoInput.addEventListener('change', (e) => {
       const file = e.target.files[0];
-      if (!file) return;
-      
-      const statusEl = document.getElementById('videoUploadStatus');
-      const urlEl = document.getElementById('itemVideoUrl');
-      if (statusEl) statusEl.textContent = 'Uploading video...';
-      
-      const formData = new FormData();
-      formData.append('image', file);
-      
-      try {
-        const response = await fetch('/api/upload', {
-          method: 'POST',
-          body: formData
-        });
-        
-        if (!response.ok) throw new Error('Upload failed');
-        
-        const data = await response.json();
-        if (urlEl) urlEl.value = data.imageUrl;
-        if (statusEl) statusEl.textContent = 'Uploaded successfully!';
-        setTimeout(() => { if (statusEl) statusEl.textContent = ''; }, 3000);
-      } catch (err) {
-        console.error('Video upload error:', err);
-        if (statusEl) {
-          statusEl.textContent = 'Error uploading video.';
-          statusEl.style.color = '#e74c3c';
-          setTimeout(() => {
-            statusEl.textContent = '';
-            statusEl.style.color = 'var(--color-primary)';
-          }, 3000);
-        }
-      }
+      if (file) uploadVideoFile(file);
     });
   }
 
@@ -1831,6 +1833,11 @@ function initUploadZone() {
       if (urlInput) urlInput.value = '';
 
       Array.from(files).forEach(file => {
+        if (file.type.startsWith('video/')) {
+          uploadVideoFile(file);
+          filesProcessed++;
+          return;
+        }
         if (!file.type.startsWith('image/')) {
           showToast('Skipping non-image file: ' + file.name);
           filesProcessed++;

@@ -560,7 +560,7 @@
               <div class="form-group" style="margin-top: 1.5rem;">
                 <label class="form-label">Product Video (Optional)</label>
                 <div style="display: flex; gap: 10px; align-items: center; margin-bottom: 0.5rem;">
-                  <input type="file" id="itemVideoFile" accept="video/mp4,video/webm,video/quicktime" style="display: none;">
+                  <input type="file" id="itemVideoFile" accept="video/*" style="display: none;">
                   <button type="button" class="btn btn-secondary btn-sm" onclick="document.getElementById('itemVideoFile').click()" style="width: auto;">Upload Video File</button>
                   <span id="videoUploadStatus" style="font-size: 0.85rem; color: var(--color-primary); font-weight: 500;"></span>
                 </div>
@@ -701,6 +701,6 @@
   <!-- Main scripts -->
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <script src="js/supabase-config.js"></script>
-  <script src="js/admin.js?v=7"></script>
+  <script src="js/admin.js?v=8"></script>
 </body>
 </html>
