@@ -39,6 +39,7 @@ document.addEventListener('DOMContentLoaded', async () => {
   
   renderProductsPage(); // Renders admin-added products dynamically on products.html
   renderHomeProducts(); // Renders featured products dynamically on index.html
+  renderRentalsPage(); // Renders rental items dynamically on rental.html
   renderSingleProductPage(); // Renders single product on product.html
   renderRatings();      // Injects ratings + variant dropdowns on rendered cards
 });
@@ -77,7 +78,7 @@ function buildProductCardHtml(item) {
         <span class="product-category">${categoryLabel}</span>
         <a href="product.html?id=${item.id}" style="text-decoration:none; color:inherit;"><h3 class="product-name" style="transition: color 0.2s;" onmouseover="this.style.color='var(--color-primary)'" onmouseout="this.style.color='inherit'">${item.name}</h3></a>
         <div class="price-row" style="${isOOS ? 'opacity:0.55;' : ''}">
-          <span class="selling-price">₹${item.price}</span>
+          <span class="selling-price">₹${item.price}${item.type === 'rental' ? ' / day' : ''}</span>
           ${item.mrp && item.mrp > item.price ? `<span class="mrp">₹${item.mrp}</span>` : ''}
           ${saveAmt > 0 ? `<span class="you-save">Save ₹${saveAmt}</span>` : ''}
         </div>
@@ -96,7 +97,11 @@ function buildProductCardHtml(item) {
                 style="background: linear-gradient(135deg, #25D366, #128C7E); color: #fff; border: none; border-radius: var(--radius-full, 50px); font-size: 0.825rem; font-weight: 700; padding: 0.55rem 1.1rem; cursor: pointer; display: inline-flex; align-items: center; gap: 4px; box-shadow: 0 4px 12px rgba(37,211,102,0.3); pointer-events: auto;">
                 🔔 Notify Me
               </button>`
-            : `<button class="btn btn-secondary btn-sm add-to-cart-btn"
+            : (item.type === 'rental' 
+                ? `<a href="product.html?id=${item.id}" class="btn btn-primary btn-sm" style="width: 100%; border-radius: var(--radius-full, 50px); box-shadow: 0 4px 12px rgba(243, 112, 34, 0.2);">
+                    Book Now
+                   </a>`
+                : `<button class="btn btn-secondary btn-sm add-to-cart-btn"
                 data-id="${item.id}"
                 data-name="${item.name}"
                 data-price="${item.price}"
@@ -105,7 +110,7 @@ function buildProductCardHtml(item) {
               </button>
               <button class="btn btn-whatsapp btn-sm" onclick="orderDirect('${safeName}', ${item.price})">
                 Order Now
-              </button>`
+              </button>`)
           }
         </div>
       </div>
@@ -1107,6 +1112,50 @@ function initBookingForm() {
   }
 }
 
+window.submitRentalBooking = async function(event, itemName, dailyPrice) {
+  event.preventDefault();
+  const name = document.getElementById('rentalFullName').value.trim();
+  const phone = document.getElementById('rentalPhoneNumber').value.trim();
+  const date = document.getElementById('rentalBookingDate').value;
+  const duration = parseInt(document.getElementById('rentalDuration').value, 10);
+
+  if (!name || !phone || !date) {
+    alert('Please fill out all fields.');
+    return;
+  }
+
+  const proceed = confirm("Are you sure you want to proceed with this rental booking?");
+  if (!proceed) return;
+
+  const totalAmount = (dailyPrice * duration) + 500; // 500 is the hardcoded deposit from before
+  const orderId = await saveOrderToStorage({
+    customerName: name,
+    mobileNumber: phone,
+    address: 'N/A', // Address not required for all rentals, or we can add it to the form
+    items: [{ name: itemName + ' Rental', price: dailyPrice, quantity: duration }],
+    totalAmount: totalAmount,
+    paymentMethod: 'UPI/Cash',
+    status: 'Pending'
+  });
+
+  let message = `Hello! I would like to book a *${itemName}* rental:\n\n`;
+  message += `*ORDER ID:* ${orderId}\n\n`;
+  message += `*BOOKING DETAILS:*\n`;
+  message += `- *Name:* ${name}\n`;
+  message += `- *Phone:* ${phone}\n`;
+  message += `- *Booking Date:* ${date}\n`;
+  message += `- *Duration:* ${duration} Day(s)\n\n`;
+  message += `Please confirm booking availability and details. Thank you!`;
+
+  const encodedText = encodeURIComponent(message);
+  const whatsappUrl = `https://wa.me/${WHATSAPP_PHONE}?text=${encodedText}`;
+  window.open(whatsappUrl, '_blank');
+
+  showWhatsAppConfirmationModal(orderId, true, () => {
+    document.getElementById('rentalBookingForm').reset();
+  });
+};
+
 // Subscribe to Back-in-Stock WhatsApp Notifications
 window.subscribeStockNotification = async function(productId, productName) {
   let customerName = 'Customer';
@@ -1329,8 +1378,35 @@ function renderSingleProductPage() {
         <div class="amazon-buy-actions">
           ${isOOS 
             ? `<button class="amazon-btn amazon-btn-notify" onclick="subscribeStockNotification('${item.id}', '${safeName}')">Notify Me When Available</button>`
-            : `<button class="amazon-btn amazon-btn-cart add-to-cart-btn" data-id="${item.id}" data-name="${item.name}" data-price="${item.price}" data-image="${item.image || 'images/brass-diya.png'}">Add to cart</button>
-               <button class="amazon-btn" style="background:#25D366; border-color:#25D366; color:#fff;" onclick="orderDirect('${safeName}', ${item.price})">Order on WhatsApp</button>`
+            : (item.type === 'rental'
+              ? `
+                <form id="rentalBookingForm" class="booking-form" onsubmit="submitRentalBooking(event, '${safeName}', ${item.price})" style="background: transparent; box-shadow: none; padding: 0;">
+                  <h4 style="margin-bottom: 0.75rem; color: var(--color-primary);">Book Your Rental</h4>
+                  <div class="form-group" style="margin-bottom: 0.5rem;">
+                    <label>Pooja Date</label>
+                    <input type="date" id="rentalBookingDate" class="form-control" required style="width: 100%; border: 1px solid #ccc; padding: 8px; border-radius: 4px;">
+                  </div>
+                  <div class="form-group" style="margin-bottom: 0.5rem;">
+                    <label>Duration</label>
+                    <select id="rentalDuration" class="form-control" style="width: 100%; border: 1px solid #ccc; padding: 8px; border-radius: 4px;">
+                      <option value="1">1 Day (₹${item.price})</option>
+                      <option value="2">2 Days (₹${item.price * 2})</option>
+                      <option value="3">3 Days (₹${item.price * 3})</option>
+                    </select>
+                  </div>
+                  <div class="form-group" style="margin-bottom: 1rem;">
+                    <label>Name & Phone</label>
+                    <input type="text" id="rentalFullName" class="form-control" placeholder="Name" required style="width: 100%; margin-bottom: 0.25rem; border: 1px solid #ccc; padding: 8px; border-radius: 4px;">
+                    <input type="tel" id="rentalPhoneNumber" class="form-control" placeholder="Phone Number" required style="width: 100%; border: 1px solid #ccc; padding: 8px; border-radius: 4px;">
+                  </div>
+                  <button type="submit" class="amazon-btn" style="background:#25D366; border-color:#25D366; color:#fff; padding: 10px; height: auto;">
+                    Confirm & Book via WhatsApp
+                  </button>
+                  <p style="font-size: 0.75rem; color: #555; text-align: center; margin-top: 0.5rem;">+ ₹500 fully refundable deposit</p>
+                </form>
+              `
+              : `<button class="amazon-btn amazon-btn-cart add-to-cart-btn" data-id="${item.id}" data-name="${item.name}" data-price="${item.price}" data-image="${item.image || 'images/brass-diya.png'}">Add to cart</button>
+                 <button class="amazon-btn" style="background:#25D366; border-color:#25D366; color:#fff;" onclick="orderDirect('${safeName}', ${item.price})">Order on WhatsApp</button>`)
           }
         </div>
         
@@ -1362,6 +1438,37 @@ function renderSingleProductPage() {
 
   // Re-attach cart button event listeners after dynamic render
   bindAddToCartButtons();
+}
+
+function renderRentalsPage() {
+  const container = document.getElementById('rentals-dynamic-container');
+  if (!container) return; // Only runs on rental.html
+
+  // Load items from global synced inventory
+  let allItems = globalProducts;
+
+  // Filter only rental items
+  const rentalItems = allItems.filter(i => i.type === 'rental');
+
+  if (rentalItems.length === 0) {
+    container.innerHTML = `
+      <div style="text-align:center; padding: 4rem 2rem; color: #888;">
+        <div style="font-size: 3rem; margin-bottom: 1rem;">🪔</div>
+        <p style="font-size: 1.1rem; font-weight: 600;">No rentals available yet.</p>
+        <p style="font-size: 0.9rem; margin-top: 0.5rem;">Check back soon or contact us on WhatsApp.</p>
+      </div>`;
+    return;
+  }
+
+  const cardsHtml = rentalItems.map(buildProductCardHtml).join('');
+
+  container.innerHTML = `
+    <div class="category-block">
+      <div class="products-grid">
+        ${cardsHtml}
+      </div>
+    </div>
+  `;
 }
 
 // Product Slider State
