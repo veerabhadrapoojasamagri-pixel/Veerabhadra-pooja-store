@@ -1492,10 +1492,17 @@ function clearForm() {
   toggleFormFields();
 }
 
-function openAddForm() {
+function openAddForm(defaultType = null) {
   const itemId = document.getElementById('itemId').value;
   if (itemId) {
     clearForm();
+  }
+  if (defaultType) {
+    const typeSelect = document.getElementById('itemType');
+    if (typeSelect) {
+      typeSelect.value = defaultType;
+      typeSelect.dispatchEvent(new Event('change'));
+    }
   }
   switchTab('add-item');
 }
