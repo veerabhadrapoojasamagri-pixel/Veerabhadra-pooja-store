@@ -486,11 +486,14 @@
       el.addEventListener('click', () => {
         const name = el.getAttribute('data-name');
         const category = el.getAttribute('data-category');
+        const id = el.getAttribute('data-id');
         if (name) saveRecentSearch(name);
 
         closeDropdown();
 
-        if (category === 'vratam-setups' || category === 'rental') {
+        if (id) {
+          window.location.href = `/product.html?id=${id}`;
+        } else if (category === 'vratam-setups' || category === 'rental') {
           window.location.href = '/rental';
         } else if (category) {
           window.location.href = `/products#${category}`;
@@ -544,7 +547,9 @@
           const first = currentSuggestions[0];
           saveRecentSearch(first.name);
           closeDropdown();
-          if (first.category === 'vratam-setups') {
+          if (first.id) {
+            window.location.href = `/product.html?id=${first.id}`;
+          } else if (first.category === 'vratam-setups') {
             window.location.href = '/rental';
           } else {
             window.location.href = `/products#${first.category || ''}`;
