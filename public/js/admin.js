@@ -1819,11 +1819,16 @@ function initUploadZone() {
           showError('Invalid server response');
         }
       } else {
-        try {
-          const data = JSON.parse(xhr.responseText);
-          showError(data.error || 'Upload failed');
-        } catch(e) {
-          showError('Upload failed with status ' + xhr.status);
+        if (xhr.status === 413) {
+          showError('Video file is too large for the server. Try a smaller file.');
+        } else {
+          try {
+            const data = JSON.parse(xhr.responseText);
+            showError(data.error || 'Upload failed');
+          } catch(e) {
+            let errorPreview = xhr.responseText ? xhr.responseText.substring(0, 30) : '';
+            showError('Upload failed (Status ' + xhr.status + ') ' + errorPreview);
+          }
         }
       }
     };
