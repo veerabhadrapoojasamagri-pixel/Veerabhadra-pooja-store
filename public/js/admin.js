@@ -1768,40 +1768,83 @@ function initUploadZone() {
     handleFiles(e.target.files);
   });
 
-  async function uploadVideoFile(file) {
+  function uploadVideoFile(file) {
     const statusEl = document.getElementById('videoUploadStatus');
     const urlEl = document.getElementById('itemVideoUrl');
-    if (statusEl) statusEl.textContent = 'Uploading video...';
     
-    const formData = new FormData();
-    formData.append('image', file);
-    
-    try {
-      const response = await fetch('/api/upload', {
-        method: 'POST',
-        body: formData
-      });
-      
-      const data = await response.json();
-      
-      if (!response.ok) {
-        throw new Error(data.error || 'Upload failed');
-      }
-      
-      if (urlEl) urlEl.value = data.imageUrl;
-      if (statusEl) statusEl.textContent = 'Uploaded successfully!';
-      setTimeout(() => { if (statusEl) statusEl.textContent = ''; }, 3000);
-    } catch (err) {
-      console.error('Video upload error:', err);
+    if (file.size > 50 * 1024 * 1024) {
       if (statusEl) {
-        statusEl.textContent = 'Error: ' + err.message;
+        statusEl.textContent = 'Error: Video file is too large (max 50MB).';
         statusEl.style.color = '#e74c3c';
         setTimeout(() => {
           statusEl.textContent = '';
           statusEl.style.color = 'var(--color-primary)';
-        }, 3000);
+        }, 4000);
+      }
+      return;
+    }
+
+    if (statusEl) {
+      statusEl.textContent = 'Uploading video... 0%';
+      statusEl.style.color = 'var(--color-primary)';
+    }
+    
+    const formData = new FormData();
+    formData.append('image', file);
+    
+    const xhr = new XMLHttpRequest();
+    xhr.open('POST', '/api/upload', true);
+    
+    xhr.upload.onprogress = function(e) {
+      if (e.lengthComputable && statusEl) {
+        const percentComplete = Math.round((e.loaded / e.total) * 100);
+        statusEl.textContent = `Uploading video... ${percentComplete}%`;
+      }
+    };
+    
+    xhr.onload = function() {
+      if (xhr.status >= 200 && xhr.status < 300) {
+        try {
+          const data = JSON.parse(xhr.responseText);
+          if (urlEl) urlEl.value = data.imageUrl;
+          if (statusEl) {
+            statusEl.textContent = 'Uploaded successfully!';
+            statusEl.style.color = '#10b981';
+            setTimeout(() => { 
+              statusEl.textContent = ''; 
+              statusEl.style.color = 'var(--color-primary)';
+            }, 3000);
+          }
+        } catch (err) {
+          showError('Invalid server response');
+        }
+      } else {
+        try {
+          const data = JSON.parse(xhr.responseText);
+          showError(data.error || 'Upload failed');
+        } catch(e) {
+          showError('Upload failed with status ' + xhr.status);
+        }
+      }
+    };
+    
+    xhr.onerror = function() {
+      showError('Network error occurred during upload.');
+    };
+    
+    function showError(msg) {
+      console.error('Video upload error:', msg);
+      if (statusEl) {
+        statusEl.textContent = 'Error: ' + msg;
+        statusEl.style.color = '#e74c3c';
+        setTimeout(() => {
+          statusEl.textContent = '';
+          statusEl.style.color = 'var(--color-primary)';
+        }, 4000);
       }
     }
+    
+    xhr.send(formData);
   }
 
   const videoInput = document.getElementById('itemVideoFile');
