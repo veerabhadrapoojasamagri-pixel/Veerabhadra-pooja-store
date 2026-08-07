@@ -481,6 +481,18 @@
                 </div>
               </div>
 
+              <!-- Rental Conditional Fields -->
+              <div id="rentalPriceFields" class="form-grid-2" style="display: none;">
+                <div class="form-group">
+                  <label for="rentalPrice" class="form-label">Rental Price (₹) *</label>
+                  <input type="number" id="rentalPrice" class="form-input" min="0" placeholder="e.g. 500">
+                </div>
+                <div class="form-group">
+                  <label for="rentalDeposit" class="form-label">Security Deposit (₹)</label>
+                  <input type="number" id="rentalDeposit" class="form-input" min="0" placeholder="e.g. 1000">
+                </div>
+              </div>
+
               <div id="variantsCheckboxGroup" class="form-group" style="margin-top: 1rem;">
                 <label class="form-label" style="display: inline-flex; align-items: center; gap: 0.5rem; cursor: pointer; font-weight: 500;">
                   <input type="checkbox" id="hasVariants" onchange="toggleVariantsSection()" style="width: 16px; height: 16px; cursor: pointer;">
