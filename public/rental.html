@@ -310,6 +310,13 @@
           </div>
           
           <div class="form-group">
+            <label for="rentalItemDropdown">Rental Item</label>
+            <select id="rentalItemDropdown" class="form-control" required>
+              <option value="">-- Select Rental Item --</option>
+            </select>
+          </div>
+
+          <div class="form-group">
             <label for="bookingDate">Pooja Date</label>
             <input type="date" id="bookingDate" class="form-control" required>
           </div>
@@ -317,9 +324,9 @@
           <div class="form-group">
             <label for="duration">Rental Duration</label>
             <select id="duration" class="form-control">
-              <option value="1">1 Day (₹299)</option>
-              <option value="2">2 Days (₹598)</option>
-              <option value="3">3 Days (₹897)</option>
+              <option value="1">1 Day</option>
+              <option value="2">2 Days</option>
+              <option value="3">3 Days</option>
             </select>
           </div>
 
@@ -386,6 +393,6 @@
 
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <script src="js/supabase-config.js"></script>
-  <script src="js/main.js?v=5"></script>
+  <script src="js/main.js?v=6"></script>
 </body>
 </html>

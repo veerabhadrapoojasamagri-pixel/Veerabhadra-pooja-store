@@ -1070,27 +1070,41 @@ function initBookingForm() {
       const date = document.getElementById('bookingDate').value;
       const duration = parseInt(document.getElementById('duration').value, 10);
       const address = document.getElementById('address').value.trim();
+      
+      const rentalDropdown = document.getElementById('rentalItemDropdown');
+      const selectedOption = rentalDropdown ? rentalDropdown.options[rentalDropdown.selectedIndex] : null;
+
+      let itemName = 'Vratam Peta Setup Kit';
+      let itemPrice = 299;
+
+      if (selectedOption && selectedOption.value) {
+        itemName = selectedOption.getAttribute('data-name') || itemName;
+        itemPrice = parseInt(selectedOption.getAttribute('data-price') || itemPrice, 10);
+      } else if (rentalDropdown) {
+        alert('Please select a rental item.');
+        return;
+      }
 
       if (!name || !phone || !date || !address) {
         alert('Please fill out all fields.');
         return;
       }
 
-      const proceed = confirm("Are you sure you want to proceed with this rental booking?");
+      const proceed = confirm("Are you sure you want to proceed with booking " + itemName + "?");
       if (!proceed) return;
 
-      const totalAmount = (299 * duration) + 500;
+      const totalAmount = (itemPrice * duration) + 500;
       const orderId = await saveOrderToStorage({
         customerName: name,
         mobileNumber: phone,
         address: address,
-        items: [{ name: 'Vratam Peta Setup Kit', price: 299, quantity: duration }],
+        items: [{ name: itemName, price: itemPrice, quantity: duration }],
         totalAmount: totalAmount,
         paymentMethod: 'UPI/Cash',
         status: 'Pending'
       });
 
-      let message = `Hello! I would like to book a *Vratam Peta Rental* package:\n\n`;
+      let message = `Hello! I would like to book a rental package:\n\n`;
       message += `*ORDER ID:* ${orderId}\n\n`;
       message += `*BOOKING DETAILS:*\n`;
       message += `- *Name:* ${name}\n`;
@@ -1449,6 +1463,15 @@ function renderRentalsPage() {
 
   // Filter only rental items
   const rentalItems = allItems.filter(i => i.type === 'rental');
+
+  const rentalDropdown = document.getElementById('rentalItemDropdown');
+  if (rentalDropdown) {
+    let optionsHtml = '<option value="">-- Select Rental Item --</option>';
+    rentalItems.forEach(item => {
+      optionsHtml += `<option value="${item.id}" data-price="${item.price}" data-name="${item.name.replace(/"/g, '&quot;')}">${item.name} (₹${item.price}/day)</option>`;
+    });
+    rentalDropdown.innerHTML = optionsHtml;
+  }
 
   if (rentalItems.length === 0) {
     container.innerHTML = `
