@@ -975,11 +975,13 @@ function toggleFormFields() {
   const rentalDimensions = document.getElementById('rentalDimensionsFields');
   const variantsCheckboxGroup = document.getElementById('variantsCheckboxGroup');
   const variantsSection = document.getElementById('variantsSection');
+  const rentalIncludedFields = document.getElementById('rentalIncludedFields');
 
   if (type === 'rental') {
     saleFields.style.display = 'none';
     rentalFields.style.display = 'block';
     if (rentalDimensions) rentalDimensions.style.display = 'grid';
+    if (rentalIncludedFields) rentalIncludedFields.style.display = 'block';
     
     // Hide variants configuration since rentals do not have custom quantities
     if (variantsCheckboxGroup) variantsCheckboxGroup.style.display = 'none';
@@ -996,12 +998,14 @@ function toggleFormFields() {
     
     const heightInput = document.getElementById('rentalHeight');
     const widthInput = document.getElementById('rentalWidth');
+      const includedInput = document.getElementById('itemIncluded');
     if (heightInput) heightInput.required = true;
     if (widthInput) widthInput.required = true;
   } else {
     saleFields.style.display = 'block';
     rentalFields.style.display = 'none';
     if (rentalDimensions) rentalDimensions.style.display = 'none';
+    if (rentalIncludedFields) rentalIncludedFields.style.display = 'none';
     
     // Show variants configuration for sale items
     if (variantsCheckboxGroup) variantsCheckboxGroup.style.display = 'block';
@@ -1447,6 +1451,7 @@ function loadDraft() {
     const widthInput = document.getElementById('rentalWidth');
     if (heightInput && draft.rentalHeight !== undefined) heightInput.value = draft.rentalHeight;
     if (widthInput && draft.rentalWidth !== undefined) widthInput.value = draft.rentalWidth;
+      if (includedInput && draft.itemIncluded !== undefined) includedInput.value = draft.itemIncluded;
     
     toggleFormFields();
   } catch (e) {
@@ -1470,6 +1475,7 @@ function clearForm() {
   localStorage.removeItem('pooja_draft_item');
 
   document.getElementById('itemDescription').value = '';
+    if(document.getElementById('itemIncluded')) document.getElementById('itemIncluded').value = '';
   document.getElementById('itemImageUrl').value = '';
   if (document.getElementById('itemVideoUrl')) document.getElementById('itemVideoUrl').value = '';
   document.getElementById('itemRating').value = '5.0';
@@ -1524,6 +1530,7 @@ function editItem(id) {
   document.getElementById('itemImageUrl').value = '';
   document.getElementById('itemType').value = item.type;
   document.getElementById('itemDescription').value = item.description || '';
+    if(document.getElementById('itemIncluded')) document.getElementById('itemIncluded').value = item.includedItems || '';
   if (document.getElementById('itemVideoUrl')) document.getElementById('itemVideoUrl').value = item.video_url || '';
 
   if (item.images && item.images.length > 0) {
