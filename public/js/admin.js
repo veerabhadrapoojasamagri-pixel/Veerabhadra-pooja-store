@@ -978,8 +978,8 @@ function toggleFormFields() {
   const rentalIncludedFields = document.getElementById('rentalIncludedFields');
 
   if (type === 'rental') {
-    saleFields.style.display = 'none';
-    rentalFields.style.display = 'block';
+    if (saleFields) saleFields.style.display = 'none';
+    if (rentalFields) rentalFields.style.display = 'block';
     if (rentalDimensions) rentalDimensions.style.display = 'grid';
     if (rentalIncludedFields) rentalIncludedFields.style.display = 'block';
     
@@ -992,14 +992,14 @@ function toggleFormFields() {
     }
     toggleVariantsSection();
 
-    document.getElementById('itemMrp').required = false;
-    document.getElementById('itemPrice').required = false;
-    document.getElementById('rentalPrice').required = true;
+    if (document.getElementById('itemMrp')) document.getElementById('itemMrp').required = false;
+    if (document.getElementById('itemPrice')) document.getElementById('itemPrice').required = false;
+    if (document.getElementById('rentalPrice')) document.getElementById('rentalPrice').required = true;
     
-      const includedInput = document.getElementById('itemIncluded');
+    const includedInput = document.getElementById('itemIncluded');
   } else {
-    saleFields.style.display = 'block';
-    rentalFields.style.display = 'none';
+    if (saleFields) saleFields.style.display = 'block';
+    if (rentalFields) rentalFields.style.display = 'none';
     if (rentalDimensions) rentalDimensions.style.display = 'none';
     if (rentalIncludedFields) rentalIncludedFields.style.display = 'none';
     
@@ -1008,9 +1008,9 @@ function toggleFormFields() {
     // Let toggleVariantsSection handle variantsSection display based on checkbox state
     toggleVariantsSection();
 
-    document.getElementById('itemMrp').required = true;
-    document.getElementById('itemPrice').required = true;
-    document.getElementById('rentalPrice').required = false;
+    if (document.getElementById('itemMrp')) document.getElementById('itemMrp').required = true;
+    if (document.getElementById('itemPrice')) document.getElementById('itemPrice').required = true;
+    if (document.getElementById('rentalPrice')) document.getElementById('rentalPrice').required = false;
     
 
   }
