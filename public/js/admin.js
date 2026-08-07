@@ -996,11 +996,7 @@ function toggleFormFields() {
     document.getElementById('itemPrice').required = false;
     document.getElementById('rentalPrice').required = true;
     
-    const heightInput = document.getElementById('rentalHeight');
-    const widthInput = document.getElementById('rentalWidth');
       const includedInput = document.getElementById('itemIncluded');
-    if (heightInput) heightInput.required = true;
-    if (widthInput) widthInput.required = true;
   } else {
     saleFields.style.display = 'block';
     rentalFields.style.display = 'none';
@@ -1016,10 +1012,7 @@ function toggleFormFields() {
     document.getElementById('itemPrice').required = true;
     document.getElementById('rentalPrice').required = false;
     
-    const heightInput = document.getElementById('rentalHeight');
-    const widthInput = document.getElementById('rentalWidth');
-    if (heightInput) heightInput.required = false;
-    if (widthInput) widthInput.required = false;
+
   }
 }
 
@@ -1268,7 +1261,6 @@ function renderRentals(searchTerm = '') {
           <img src="${r.image || 'images/vratam-peta.png'}" alt="" class="item-cell-img">
           <div>
             <span class="item-cell-name" style="display:block;">${r.name}</span>
-            ${r.height || r.width ? `<span style="font-size:0.75rem; color:var(--color-primary); font-weight:600; display:block; margin-top:2px;">Size: ${r.height || 'N/A'} (H) x ${r.width || 'N/A'} (W)</span>` : ''}
           </div>
         </div>
       </td>
@@ -1419,10 +1411,7 @@ function saveDraft() {
     hasVariants: document.getElementById('hasVariants').checked
   };
   
-  const heightInput = document.getElementById('rentalHeight');
-  const widthInput = document.getElementById('rentalWidth');
-  if (heightInput) draft.rentalHeight = heightInput.value;
-  if (widthInput) draft.rentalWidth = widthInput.value;
+
   
   localStorage.setItem('pooja_draft_item', JSON.stringify(draft));
 }
@@ -1447,10 +1436,7 @@ function loadDraft() {
     
     document.getElementById('hasVariants').checked = draft.hasVariants || false;
     
-    const heightInput = document.getElementById('rentalHeight');
-    const widthInput = document.getElementById('rentalWidth');
-    if (heightInput && draft.rentalHeight !== undefined) heightInput.value = draft.rentalHeight;
-    if (widthInput && draft.rentalWidth !== undefined) widthInput.value = draft.rentalWidth;
+
       if (draft.itemIncluded !== undefined && document.getElementById('includedItemsList')) {
         document.getElementById('includedItemsList').innerHTML = '';
         const lines = draft.itemIncluded.split('\n').filter(l => l.trim());
@@ -1473,10 +1459,7 @@ function clearForm() {
   document.getElementById('rentalPrice').value = '';
   document.getElementById('rentalDeposit').value = '';
   
-  const heightInput = document.getElementById('rentalHeight');
-  const widthInput = document.getElementById('rentalWidth');
-  if (heightInput) heightInput.value = '';
-  if (widthInput) widthInput.value = '';
+
   localStorage.removeItem('pooja_draft_item');
 
   document.getElementById('itemDescription').value = '';
@@ -1572,10 +1555,7 @@ function editItem(id) {
     document.getElementById('rentalPrice').value = item.price;
     document.getElementById('rentalDeposit').value = item.deposit || '';
     
-    const heightInput = document.getElementById('rentalHeight');
-    const widthInput = document.getElementById('rentalWidth');
-    if (heightInput) heightInput.value = item.height || '';
-    if (widthInput) widthInput.value = item.width || '';
+
   } else {
     document.getElementById('itemMrp').value = item.mrp;
     document.getElementById('itemPrice').value = item.price;
@@ -1674,10 +1654,8 @@ async function handleFormSubmit(e) {
     deposit = depVal ? parseFloat(depVal) : null;
     mrp = null;
     
-    const heightInput = document.getElementById('rentalHeight');
-    const widthInput = document.getElementById('rentalWidth');
-    height = heightInput ? heightInput.value.trim() : null;
-    width = widthInput ? widthInput.value.trim() : null;
+    height = null;
+    width = null;
   } else {
     mrp = parseFloat(document.getElementById('itemMrp').value);
     price = parseFloat(document.getElementById('itemPrice').value);
@@ -1696,8 +1674,7 @@ async function handleFormSubmit(e) {
     price,
     mrp,
     deposit,
-    height: type === 'rental' ? height : undefined,
-    width: type === 'rental' ? width : undefined,
+
     description,
     video_url: video_url || undefined,
     rating,
