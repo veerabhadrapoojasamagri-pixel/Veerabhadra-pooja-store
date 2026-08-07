@@ -1451,7 +1451,12 @@ function loadDraft() {
     const widthInput = document.getElementById('rentalWidth');
     if (heightInput && draft.rentalHeight !== undefined) heightInput.value = draft.rentalHeight;
     if (widthInput && draft.rentalWidth !== undefined) widthInput.value = draft.rentalWidth;
-      if (includedInput && draft.itemIncluded !== undefined) includedInput.value = draft.itemIncluded;
+      if (draft.itemIncluded !== undefined && document.getElementById('includedItemsList')) {
+        document.getElementById('includedItemsList').innerHTML = '';
+        const lines = draft.itemIncluded.split('\n').filter(l => l.trim());
+        if(lines.length) lines.forEach(l => window.addIncludedItemRow(l));
+        else window.addIncludedItemRow();
+      }
     
     toggleFormFields();
   } catch (e) {
@@ -1475,7 +1480,7 @@ function clearForm() {
   localStorage.removeItem('pooja_draft_item');
 
   document.getElementById('itemDescription').value = '';
-    if(document.getElementById('itemIncluded')) document.getElementById('itemIncluded').value = '';
+    if(document.getElementById('includedItemsList')) { document.getElementById('includedItemsList').innerHTML = ''; window.addIncludedItemRow(); }
   document.getElementById('itemImageUrl').value = '';
   if (document.getElementById('itemVideoUrl')) document.getElementById('itemVideoUrl').value = '';
   document.getElementById('itemRating').value = '5.0';
@@ -1530,7 +1535,14 @@ function editItem(id) {
   document.getElementById('itemImageUrl').value = '';
   document.getElementById('itemType').value = item.type;
   document.getElementById('itemDescription').value = item.description || '';
-    if(document.getElementById('itemIncluded')) document.getElementById('itemIncluded').value = item.includedItems || '';
+    if(document.getElementById('includedItemsList')) { 
+      document.getElementById('includedItemsList').innerHTML = ''; 
+      if(item.includedItems) {
+        item.includedItems.split('\n').filter(l => l.trim()).forEach(l => window.addIncludedItemRow(l));
+      } else {
+        window.addIncludedItemRow();
+      }
+    }
   if (document.getElementById('itemVideoUrl')) document.getElementById('itemVideoUrl').value = item.video_url || '';
 
   if (item.images && item.images.length > 0) {
@@ -2504,3 +2516,14 @@ window.renderOrders = renderOrders;
 window.toggleOutOfStock = toggleOutOfStock;
 
 
+
+window.addIncludedItemRow = function(val = '') {
+  const container = document.getElementById('includedItemsList');
+  if (!container) return;
+  const row = document.createElement('div');
+  row.style.display = 'flex';
+  row.style.gap = '0.5rem';
+  row.innerHTML = `<input type="text" class="form-input included-item-input" value="${val}" placeholder="e.g. Backdrop, Kalash..." style="flex: 1;">
+    <button type="button" class="btn btn-secondary btn-sm" onclick="this.parentElement.remove()" style="padding: 0 0.5rem; color: #ef4444; background: transparent; border: 1px solid var(--color-border);" title="Remove Item">✕</button>`;
+  container.appendChild(row);
+};
