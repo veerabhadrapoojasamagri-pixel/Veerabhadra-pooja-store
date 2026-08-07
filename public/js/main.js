@@ -1371,6 +1371,16 @@ function renderSingleProductPage() {
             ${item.description ? item.description.split('\n').filter(l=>l.trim()).map(line => `<li>${line}</li>`).join('') : `<li>Premium quality traditional pooja item</li><li>Perfect for your sacred space and rituals</li><li>Carefully packed and delivered securely</li>`}
           </ul>
         </div>
+        
+        ${item.includedItems ? `
+        <div class="amazon-divider"></div>
+        <div class="amazon-desc-block">
+          <h3>Items Included in this Kit</h3>
+          <ul class="amazon-desc-list">
+            ${item.includedItems.split('\n').filter(l=>l.trim()).map(line => `<li>${line}</li>`).join('')}
+          </ul>
+        </div>
+        ` : ''}
       </div>
       
       <!-- RIGHT: Buy Box -->
