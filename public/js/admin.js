@@ -1466,7 +1466,7 @@ function clearForm() {
     if(document.getElementById('includedItemsList')) { document.getElementById('includedItemsList').innerHTML = ''; window.addIncludedItemRow(); }
   document.getElementById('itemImageUrl').value = '';
   if (document.getElementById('itemVideoUrl')) document.getElementById('itemVideoUrl').value = '';
-  document.getElementById('itemRating').value = '5.0';
+  if (document.getElementById('itemRating')) document.getElementById('itemRating').value = '5.0';
   
   const hasVariantsCheckbox = document.getElementById('hasVariants');
   if (hasVariantsCheckbox) hasVariantsCheckbox.checked = false;
@@ -1561,7 +1561,7 @@ function editItem(id) {
     document.getElementById('itemPrice').value = item.price;
   }
 
-  document.getElementById('itemRating').value = item.rating || '5.0';
+  if (document.getElementById('itemRating')) document.getElementById('itemRating').value = item.rating || '5.0';
 
   document.getElementById('formSubmitBtn').textContent = 'Update Item Details';
   toggleFormFields();
@@ -1661,7 +1661,8 @@ async function handleFormSubmit(e) {
     price = parseFloat(document.getElementById('itemPrice').value);
     deposit = null;
   }
-  const rating = parseFloat(document.getElementById('itemRating').value) || 5.0;
+  const itemRatingEl = document.getElementById('itemRating');
+  const rating = itemRatingEl ? (parseFloat(itemRatingEl.value) || 5.0) : 5.0;
   
   let includedItems = undefined;
   if (type === 'rental') {
