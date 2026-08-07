@@ -1662,6 +1662,16 @@ async function handleFormSubmit(e) {
     deposit = null;
   }
   const rating = parseFloat(document.getElementById('itemRating').value) || 5.0;
+  
+  let includedItems = undefined;
+  if (type === 'rental') {
+    const inputs = document.querySelectorAll('.included-item-input');
+    const items = [];
+    inputs.forEach(inp => {
+      if (inp.value.trim()) items.push(inp.value.trim());
+    });
+    if (items.length > 0) includedItems = items.join('\n');
+  }
 
   // Construct item record
   const itemData = {
@@ -1674,7 +1684,7 @@ async function handleFormSubmit(e) {
     price,
     mrp,
     deposit,
-
+    includedItems,
     description,
     video_url: video_url || undefined,
     rating,
